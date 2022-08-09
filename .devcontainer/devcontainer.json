@@ -1,0 +1,17 @@
+{
+	"name": "NestJS",
+
+	"dockerComposeFile": [
+		"../docker-compose.dev.yml"
+	],
+
+	"service": "main",
+
+	"workspaceFolder": "/usr/src/app",
+	
+	"customizations": {
+		"vscode": {
+			"extensions": ["dbaeumer.vscode-eslint", "rvest.vs-code-prettier-eslint"]
+		}
+	}
+}
