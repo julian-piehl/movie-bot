@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { NecordModule } from 'necord';
 import { AppUpdate } from './app.update';
+import { TMDBModule } from './lib/tmdb/tmdb.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AppUpdate } from './app.update';
       intents: [],
       development: [process.env.DISCORD_DEV_GUILD_ID],
     }),
+    TMDBModule,
   ],
   providers: [AppUpdate],
 })
