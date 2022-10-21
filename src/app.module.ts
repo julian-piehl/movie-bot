@@ -1,3 +1,4 @@
+import { SuggestionModule } from '@modules/suggestion/suggestion.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,6 +26,7 @@ import { TMDBModule } from './lib/tmdb/tmdb.module';
       development: [process.env.DISCORD_DEV_GUILD_ID],
     }),
     TMDBModule,
+    SuggestionModule,
   ],
   providers: [AppUpdate],
 })
