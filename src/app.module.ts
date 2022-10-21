@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Intents } from 'discord.js';
 import { NecordModule } from 'necord';
 import { AppUpdate } from './app.update';
 
@@ -20,7 +19,8 @@ import { AppUpdate } from './app.update';
     }),
     NecordModule.forRoot({
       token: process.env.DISCORD_TOKEN,
-      intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+      //   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+      intents: [],
       development: [process.env.DISCORD_DEV_GUILD_ID],
     }),
   ],
