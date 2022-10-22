@@ -31,7 +31,6 @@ export class SuggestCommand {
   @SlashCommand({
     name: 'suggest',
     description: 'Schlage einem Film vor.',
-    defaultMemberPermissions: PermissionsBitField.Flags.Administrator,
   })
   public async onSuggest(
     @Context() [interaction]: [CommandInteraction],
