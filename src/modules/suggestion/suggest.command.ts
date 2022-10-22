@@ -1,15 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  CommandInteraction,
-  ComponentType,
-  EmbedBuilder,
-  PermissionsBitField,
-  User,
-} from 'discord.js';
+import { CommandInteraction, EmbedBuilder, User } from 'discord.js';
 import { Context, Options, SlashCommand } from 'necord';
 import { Repository } from 'typeorm';
 import { CurrentState, Phase } from '../../currentState';
@@ -17,7 +8,7 @@ import { SuggestCommandDto } from './dto/suggestCommand.dto';
 import { SuggestionEntity } from './entity/suggestion.entity';
 import { Movie } from '../../lib/tmdb/dto/movie.dto';
 import { TMDBService } from '../../lib/tmdb/tmdb.service';
-import { PageButton } from './enum/pageButton.enum';
+import { EmbedPager } from '@common/embedPager/embedPager';
 
 @Injectable()
 export class SuggestCommand {
@@ -56,74 +47,9 @@ export class SuggestCommand {
     //TODO: Remove me
     console.log(data);
 
-    const lastButton = new ButtonBuilder()
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('⬅️')
-      .setCustomId(PageButton.Last);
-    const selectButton = new ButtonBuilder()
-      .setStyle(ButtonStyle.Primary)
-      .setLabel('Auswählen')
-      .setCustomId(PageButton.Select);
-    const nextButton = new ButtonBuilder()
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('➡️')
-      .setCustomId(PageButton.Next);
-    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      lastButton.setDisabled(true),
-      selectButton,
-      nextButton.setDisabled(data.length <= 1),
-    );
-    const message = await interaction.reply({
-      components: [actionRow],
-      embeds: [
-        this.generateMovieMessage(data[0]).setFooter({
-          text: `Seite 1 von ${data.length}`,
-        }),
-      ],
-      ephemeral: true,
-    });
-
-    let currentIndex = 0;
-    const collector = message.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      time: 1000 * 60 * 5,
-    });
-    collector.on('collect', async (button) => {
-      if (button.customId == PageButton.Select) {
-        collector.stop();
-        this.updateSuggestion(interaction.user, data[currentIndex]);
-
-        button.update({
-          components: [],
-          embeds: [
-            this.generateMovieMessage(data[currentIndex]).setAuthor({
-              name: 'Vorschlag eingereicht',
-              iconURL: interaction.user.avatarURL(),
-            }),
-          ],
-        });
-
-        return;
-      }
-
-      button.customId == PageButton.Last
-        ? (currentIndex -= 1)
-        : (currentIndex += 1);
-
-      const updateActionRow = new ActionRowBuilder<ButtonBuilder>();
-      updateActionRow.addComponents(
-        lastButton.setDisabled(currentIndex == 0),
-        selectButton,
-        nextButton.setDisabled(currentIndex == data.length - 1),
-      );
-      button.update({
-        components: [updateActionRow],
-        embeds: [
-          this.generateMovieMessage(data[currentIndex]).setFooter({
-            text: `Seite ${currentIndex + 1} von ${data.length}`,
-          }),
-        ],
-      });
+    const embedPager = new EmbedPager<Movie>(data, this.generateMovieMessage);
+    embedPager.run(interaction, (selectedMovie) => {
+      this.updateSuggestion(interaction.user, selectedMovie);
     });
   }
 
