@@ -8,6 +8,7 @@ import {
   ComponentType,
   EmbedBuilder,
   PermissionsBitField,
+  User,
 } from 'discord.js';
 import { Context, Options, SlashCommand } from 'necord';
 import { Repository } from 'typeorm';
@@ -16,6 +17,7 @@ import { SuggestCommandDto } from './dto/suggestCommand.dto';
 import { SuggestionEntity } from './entity/suggestion.entity';
 import { Movie } from '../../lib/tmdb/dto/movie.dto';
 import { TMDBService } from '../../lib/tmdb/tmdb.service';
+import { PageButton } from './enum/pageButton.enum';
 
 @Injectable()
 export class SuggestCommand {
@@ -52,31 +54,25 @@ export class SuggestCommand {
       return;
     }
 
+    //TODO: Remove me
     console.log(data);
 
-    if (data.length == 1) {
-      interaction.reply({
-        embeds: [this.generateMovieMessage(data[0])],
-        ephemeral: true,
-      });
-      return;
-    }
     const lastButton = new ButtonBuilder()
       .setStyle(ButtonStyle.Secondary)
       .setEmoji('⬅️')
-      .setCustomId('last');
+      .setCustomId(PageButton.Last);
     const selectButton = new ButtonBuilder()
       .setStyle(ButtonStyle.Primary)
       .setLabel('Auswählen')
-      .setCustomId('select');
+      .setCustomId(PageButton.Select);
     const nextButton = new ButtonBuilder()
       .setStyle(ButtonStyle.Secondary)
       .setEmoji('➡️')
-      .setCustomId('next');
+      .setCustomId(PageButton.Next);
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       lastButton.setDisabled(true),
       selectButton,
-      nextButton,
+      nextButton.setDisabled(data.length <= 1),
     );
     const message = await interaction.reply({
       components: [actionRow],
@@ -94,8 +90,9 @@ export class SuggestCommand {
       time: 1000 * 60 * 5,
     });
     collector.on('collect', async (button) => {
-      if (button.customId == 'select') {
+      if (button.customId == PageButton.Select) {
         collector.stop();
+        this.updateSuggestion(interaction.user, data[currentIndex]);
 
         button.update({
           components: [],
@@ -107,27 +104,12 @@ export class SuggestCommand {
           ],
         });
 
-        if (process.env.MOVIEBOT_MULTIPLE_SUGGESTIONS != 'true') {
-          await this.suggestionsRepository.delete({
-            userId: interaction.user.id,
-          });
-        } else {
-          const found = await this.suggestionsRepository.findOneBy({
-            userId: interaction.user.id,
-            movieId: data[currentIndex].id,
-          });
-
-          if (found) return;
-        }
-
-        this.suggestionsRepository.save({
-          userId: interaction.user.id,
-          movieId: data[currentIndex].id,
-        });
         return;
       }
 
-      button.customId == 'last' ? (currentIndex -= 1) : (currentIndex += 1);
+      button.customId == PageButton.Last
+        ? (currentIndex -= 1)
+        : (currentIndex += 1);
 
       const updateActionRow = new ActionRowBuilder<ButtonBuilder>();
       updateActionRow.addComponents(
@@ -154,5 +136,25 @@ export class SuggestCommand {
       .setImage(movie.backdrop);
 
     return embed;
+  }
+
+  private async updateSuggestion(user: User, movie: Movie) {
+    if (process.env.MOVIEBOT_MULTIPLE_SUGGESTIONS != 'true') {
+      await this.suggestionsRepository.delete({
+        userId: user.id,
+      });
+    } else {
+      const found = await this.suggestionsRepository.findOneBy({
+        userId: user.id,
+        movieId: movie.id,
+      });
+
+      if (found) return;
+    }
+
+    this.suggestionsRepository.save({
+      userId: user.id,
+      movieId: movie.id,
+    });
   }
 }
