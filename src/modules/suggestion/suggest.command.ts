@@ -29,7 +29,8 @@ export class SuggestCommand {
   ) {
     if (CurrentState.phase != Phase.Suggestions) {
       interaction.reply({
-        content: '❌ Vorschläge können aktuell nicht eingereicht werden!',
+        content:
+          Emoji.cross + ' Vorschläge können aktuell nicht eingereicht werden!',
         ephemeral: true,
       });
       return;
@@ -38,7 +39,7 @@ export class SuggestCommand {
     const data = await this.tmdb.searchMovie(query);
     if (data.length <= 0) {
       interaction.reply({
-        content: '❌ Der Film konnte nicht gefunden werden.',
+        content: Emoji.cross + ' Der Film konnte nicht gefunden werden.',
         ephemeral: true,
       });
       return;
