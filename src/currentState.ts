@@ -1,10 +1,14 @@
+import { Message } from 'discord.js';
+
 export enum Phase {
   None,
   Suggestions,
   Voting,
-  End,
 }
 
 export class CurrentState {
-  public static phase = Phase.Suggestions;
+  public static phase = Phase.None;
+
+  public static movieChannelId: string;
+  public static startMessage: Message;
 }

@@ -1,7 +1,9 @@
+import { MovieModule } from '@modules/movie/movie.module';
 import { SuggestionModule } from '@modules/suggestion/suggestion.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GatewayIntentBits } from 'discord.js';
 import { NecordModule } from 'necord';
 import { AppUpdate } from './app.update';
 import { TMDBModule } from './lib/tmdb/tmdb.module';
@@ -22,11 +24,12 @@ import { TMDBModule } from './lib/tmdb/tmdb.module';
     NecordModule.forRoot({
       token: process.env.DISCORD_TOKEN,
       //   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
-      intents: [],
+      intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
       development: [process.env.DISCORD_DEV_GUILD_ID],
     }),
     TMDBModule,
     SuggestionModule,
+    MovieModule,
   ],
   providers: [AppUpdate],
 })
