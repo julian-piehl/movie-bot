@@ -1,12 +1,9 @@
 import { Emoji } from '@common/emoji.enum';
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
-import {
-  CommandInteraction,
-  EmbedBuilder,
-  PermissionFlagsBits,
-} from 'discord.js';
+import { CommandInteraction, PermissionFlagsBits } from 'discord.js';
 import { Context, createCommandGroupDecorator, Subcommand } from 'necord';
 import { CurrentState, Phase } from 'src/currentState';
+import { getStartEmbed } from './movie.embed';
 
 export const MovieCommandDecorator = createCommandGroupDecorator({
   name: 'movie',
@@ -41,6 +38,7 @@ export class MovieCommand {
     }
 
     await this.suggestionService.clear();
+    CurrentState.suggestionCount = 0;
 
     CurrentState.movieChannelId = member.voice.channelId;
     CurrentState.phase = Phase.Suggestions;
@@ -50,18 +48,8 @@ export class MovieCommand {
       ephemeral: true,
     });
 
-    const embed = new EmbedBuilder()
-      .setTitle('Welcher Film möchtest du ansehen?')
-      .setDescription(
-        'Schlage jetzt einen Film vor!\nNutze dafür einfach den `/suggest` Befehl.',
-      )
-      .setImage(
-        'https://nbcpalmsprings.com/wp-content/uploads/sites/8/2021/12/BEST-MOVIES-OF-2021.jpeg',
-      )
-      .setFooter({ text: 'Aktuelle Vorschläge: 0' });
-
     const message = await interaction.channel.send({
-      embeds: [embed],
+      embeds: [getStartEmbed(0)],
     });
     CurrentState.startMessage = message;
   }
