@@ -8,6 +8,7 @@ import { TMDBService } from '../../lib/tmdb/tmdb.service';
 import { EmbedPager } from '@common/embedPager/embedPager';
 import { Emoji } from '@common/emoji.enum';
 import { SuggestionService } from './suggestion.service';
+import { getStartEmbed } from '@modules/movie/movie.embed';
 
 @Injectable()
 export class SuggestCommand {
@@ -46,8 +47,17 @@ export class SuggestCommand {
     console.log(data);
 
     const embedPager = new EmbedPager<Movie>(data, this.generateMovieMessage);
-    embedPager.run(interaction, (selectedMovie) => {
+    embedPager.run(interaction, async (selectedMovie) => {
+      const dbMovie = await this.suggestionService.findByMovieId(
+        selectedMovie.id,
+      );
+      if (!dbMovie) CurrentState.suggestionCount++;
+
       this.suggestionService.update(interaction.user, selectedMovie);
+
+      CurrentState.startMessage.edit({
+        embeds: [getStartEmbed(CurrentState.suggestionCount)],
+      });
     });
   }
 

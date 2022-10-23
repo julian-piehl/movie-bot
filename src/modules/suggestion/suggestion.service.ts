@@ -16,6 +16,10 @@ export class SuggestionService {
     await this.suggestionsRepository.clear();
   }
 
+  async findByMovieId(movieId: number) {
+    return this.suggestionsRepository.findOneBy({ movieId });
+  }
+
   async update(user: User, movie: Movie) {
     if (process.env.MOVIEBOT_MULTIPLE_SUGGESTIONS != 'true') {
       await this.suggestionsRepository.delete({
