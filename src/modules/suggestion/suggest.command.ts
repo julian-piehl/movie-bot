@@ -1,22 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CommandInteraction, EmbedBuilder, User } from 'discord.js';
+import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { Context, Options, SlashCommand } from 'necord';
-import { Repository } from 'typeorm';
 import { CurrentState, Phase } from '../../currentState';
 import { SuggestCommandDto } from './dto/suggestCommand.dto';
-import { SuggestionEntity } from './entity/suggestion.entity';
 import { Movie } from '../../lib/tmdb/dto/movie.dto';
 import { TMDBService } from '../../lib/tmdb/tmdb.service';
 import { EmbedPager } from '@common/embedPager/embedPager';
+import { Emoji } from '@common/emoji.enum';
+import { SuggestionService } from './suggestion.service';
 
 @Injectable()
 export class SuggestCommand {
   constructor(
     private readonly tmdb: TMDBService,
-
-    @InjectRepository(SuggestionEntity)
-    private suggestionsRepository: Repository<SuggestionEntity>,
+    private readonly suggestionService: SuggestionService,
   ) {}
 
   @SlashCommand({
@@ -50,7 +47,7 @@ export class SuggestCommand {
 
     const embedPager = new EmbedPager<Movie>(data, this.generateMovieMessage);
     embedPager.run(interaction, (selectedMovie) => {
-      this.updateSuggestion(interaction.user, selectedMovie);
+      this.suggestionService.update(interaction.user, selectedMovie);
     });
   }
 
@@ -62,25 +59,5 @@ export class SuggestCommand {
       .setImage(movie.backdrop);
 
     return embed;
-  }
-
-  private async updateSuggestion(user: User, movie: Movie) {
-    if (process.env.MOVIEBOT_MULTIPLE_SUGGESTIONS != 'true') {
-      await this.suggestionsRepository.delete({
-        userId: user.id,
-      });
-    } else {
-      const found = await this.suggestionsRepository.findOneBy({
-        userId: user.id,
-        movieId: movie.id,
-      });
-
-      if (found) return;
-    }
-
-    this.suggestionsRepository.save({
-      userId: user.id,
-      movieId: movie.id,
-    });
   }
 }
