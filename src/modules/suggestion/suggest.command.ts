@@ -34,6 +34,20 @@ export class SuggestCommand {
       return;
     }
 
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (
+      !member.voice.channelId ||
+      member.voice.channelId != CurrentState.movieChannelId
+    ) {
+      interaction.reply({
+        content:
+          Emoji.cross +
+          ` Um Filme vorzuschlagen musst du dem <#${CurrentState.movieChannelId}> Kanal beitreten.`,
+        ephemeral: true,
+      });
+      return;
+    }
+
     this.suggestSelector(interaction, query);
   }
 
