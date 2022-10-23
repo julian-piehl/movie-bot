@@ -2,7 +2,7 @@ import { EmbedBuilder } from '@discordjs/builders';
 
 export function getStartEmbed(suggestionCount: number) {
   return new EmbedBuilder()
-    .setTitle('Welcher Film möchtest du ansehen?')
+    .setTitle('Welchen Film möchtest du ansehen?')
     .setDescription(
       'Schlage jetzt einen Film vor!\nNutze dafür einfach den `/suggest` Befehl.',
     )
