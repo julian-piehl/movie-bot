@@ -48,8 +48,18 @@ export class MovieCommand {
       ephemeral: true,
     });
 
+    /*const button = new ButtonBuilder()
+      .setCustomId('suggest')
+      .setLabel('Jetzt vorschlagen')
+      .setStyle(ButtonStyle.Primary);
+
+    const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      button,
+    );*/
+
     const message = await interaction.channel.send({
       embeds: [getStartEmbed(0)],
+      //   components: [actionRow],
     });
     CurrentState.startMessage = message;
   }

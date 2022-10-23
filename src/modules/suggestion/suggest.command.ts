@@ -3,11 +3,11 @@ import { CommandInteraction, EmbedBuilder } from 'discord.js';
 import { Context, Options, SlashCommand } from 'necord';
 import { CurrentState, Phase } from '../../currentState';
 import { SuggestCommandDto } from './dto/suggestCommand.dto';
-import { Movie } from '../../lib/tmdb/dto/movie.dto';
-import { TMDBService } from '../../lib/tmdb/tmdb.service';
-import { EmbedPager } from '@common/embedPager/embedPager';
 import { Emoji } from '@common/emoji.enum';
+import { TMDBService } from 'src/lib/tmdb/tmdb.service';
 import { SuggestionService } from './suggestion.service';
+import { EmbedPager } from '@common/embedPager/embedPager';
+import { Movie } from 'src/lib/tmdb/dto/movie.dto';
 import { getStartEmbed } from '@modules/movie/movie.embed';
 
 @Injectable()
@@ -34,7 +34,59 @@ export class SuggestCommand {
       return;
     }
 
-    const data = await this.tmdb.searchMovie(query);
+    this.suggestSelector(interaction, query);
+  }
+
+  /*@Button('suggest')
+  public async onButton(@Context() [interaction]: ButtonContext) {
+    if (CurrentState.phase != Phase.Suggestions) {
+      interaction.reply({
+        content:
+          Emoji.cross + ' Vorschläge können aktuell nicht eingereicht werden!',
+        ephemeral: true,
+      });
+      return;
+    }
+
+    const modal = new ModalBuilder()
+      .setCustomId('suggestModal')
+      .setTitle('Jetzt vorschlagen');
+
+    const suggestInput = new TextInputBuilder()
+      .setCustomId('suggestInput')
+      .setLabel('Name des Filmes:')
+      .setStyle(TextInputStyle.Short)
+      .setPlaceholder('Klaus')
+      .setMaxLength(100);
+    const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
+      suggestInput,
+    );
+
+    modal.addComponents(actionRow);
+
+    await interaction.showModal(modal);
+
+    const submitted: ModalSubmitInteraction = await interaction
+      .awaitModalSubmit({
+        time: 1000 * 60,
+        filter: (i) => i.user.id == interaction.user.id,
+      })
+      .catch((error) => {
+        console.log(error);
+        return null;
+      });
+
+    if (submitted) {
+      const movieTitle = submitted.fields.getTextInputValue('suggestInput');
+      this.suggestSelector(submitted, movieTitle);
+    }
+  }*/
+
+  async suggestSelector(
+    interaction: CommandInteraction /*| ModalSubmitInteraction*/,
+    title: string,
+  ) {
+    const data = await this.tmdb.searchMovie(title);
     if (data.length <= 0) {
       interaction.reply({
         content: Emoji.cross + ' Der Film konnte nicht gefunden werden.',

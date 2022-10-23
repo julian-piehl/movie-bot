@@ -33,7 +33,10 @@ export class EmbedPager<T> {
     this.ephemeral = value;
   }
 
-  async run(interaction: CommandInteraction, callback: (data: T) => any) {
+  async run(
+    interaction: CommandInteraction /*| ModalSubmitInteraction*/,
+    callback: (data: T) => any,
+  ) {
     this.currentIndex = 0;
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
