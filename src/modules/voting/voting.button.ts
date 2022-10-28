@@ -1,8 +1,10 @@
 import { unvoteButton, voteButton } from '@common/embedPager/pageButton';
+import { Emoji } from '@common/emoji.enum';
 import { generateMovieEmbed } from '@modules/movie/movie.embed';
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { Injectable } from '@nestjs/common';
 import { Button, ButtonContext, Context } from 'necord';
+import { CurrentState } from 'src/currentState';
 import { Movie } from 'src/lib/tmdb/dto/movie.dto';
 import { TMDBService } from 'src/lib/tmdb/tmdb.service';
 import { VotingEmbedPager } from './voting.embedPager';
@@ -19,6 +21,19 @@ export class VotingButton {
   @Button('startVote')
   async onVote(@Context() [interaction]: ButtonContext) {
     await interaction.deferReply({ ephemeral: true });
+
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    if (
+      !member.voice.channelId ||
+      member.voice.channelId != CurrentState.movieChannelId
+    ) {
+      interaction.editReply({
+        content:
+          Emoji.cross +
+          ` Um für Filme abzustimmen musst du dem <#${CurrentState.movieChannelId}> Kanal beitreten.`,
+      });
+      return;
+    }
 
     const movieIds = await this.suggestionService.getMovieIds();
     const movies: Movie[] = [];
