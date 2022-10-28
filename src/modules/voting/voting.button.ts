@@ -1,0 +1,46 @@
+import { unvoteButton, voteButton } from '@common/embedPager/pageButton';
+import { generateMovieEmbed } from '@modules/movie/movie.embed';
+import { SuggestionService } from '@modules/suggestion/suggestion.service';
+import { Injectable } from '@nestjs/common';
+import { Button, ButtonContext, Context } from 'necord';
+import { Movie } from 'src/lib/tmdb/dto/movie.dto';
+import { TMDBService } from 'src/lib/tmdb/tmdb.service';
+import { VotingEmbedPager } from './voting.embedPager';
+import { VotingService } from './voting.service';
+
+@Injectable()
+export class VotingButton {
+  constructor(
+    private readonly tmdb: TMDBService,
+    private readonly suggestionService: SuggestionService,
+    private readonly votingService: VotingService,
+  ) {}
+
+  @Button('startVote')
+  async onVote(@Context() [interaction]: ButtonContext) {
+    await interaction.deferReply({ ephemeral: true });
+
+    const movieIds = await this.suggestionService.getMovieIds();
+    const movies: Movie[] = [];
+
+    for (let i = 0; i < movieIds.length; i++) {
+      const movie = await this.tmdb.getMovie(movieIds[i] as unknown as number);
+      movies.push(movie);
+    }
+
+    const embedPager = new VotingEmbedPager<Movie>(movies, generateMovieEmbed);
+    embedPager.onPagination(async (data) => {
+      const isVoted = await this.votingService.checkVoting(
+        interaction.user.id,
+        data.id,
+      );
+      return [
+        voteButton.setDisabled(isVoted),
+        unvoteButton.setDisabled(!isVoted),
+      ];
+    });
+    embedPager.run(interaction, async (movie) => {
+      await this.votingService.switchVoting(interaction.user.id, movie.id);
+    });
+  }
+}

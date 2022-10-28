@@ -26,4 +26,23 @@ export class TMDBService {
     const movies = await lastValueFrom<Movie[]>(request);
     return movies;
   }
+
+  async getMovie(movieId: number): Promise<Movie> {
+    const request = this.httpService
+      .get(`/movie/${movieId}`, {
+        params: {
+          api_key: process.env.TMDB_TOKEN,
+          language: 'de',
+        },
+      })
+      .pipe(map((res) => new Movie(res.data)))
+      .pipe(
+        catchError(() => {
+          throw new ServiceUnavailableException('API not available');
+        }),
+      );
+
+    const movie = await lastValueFrom<Movie>(request);
+    return movie;
+  }
 }

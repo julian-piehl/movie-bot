@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CommandInteraction, EmbedBuilder } from 'discord.js';
+import { CommandInteraction } from 'discord.js';
 import { Context, Options, SlashCommand } from 'necord';
 import { CurrentState, Phase } from '../../currentState';
 import { SuggestCommandDto } from './dto/suggestCommand.dto';
@@ -8,7 +8,7 @@ import { TMDBService } from 'src/lib/tmdb/tmdb.service';
 import { SuggestionService } from './suggestion.service';
 import { EmbedPager } from '@common/embedPager/embedPager';
 import { Movie } from 'src/lib/tmdb/dto/movie.dto';
-import { getStartEmbed } from '@modules/movie/movie.embed';
+import { generateMovieEmbed, getStartEmbed } from '@modules/movie/movie.embed';
 
 @Injectable()
 export class SuggestCommand {
@@ -25,11 +25,12 @@ export class SuggestCommand {
     @Context() [interaction]: [CommandInteraction],
     @Options() { query }: SuggestCommandDto,
   ) {
+    await interaction.deferReply({ ephemeral: true });
+
     if (CurrentState.phase != Phase.Suggestions) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.cross + ' Vorschläge können aktuell nicht eingereicht werden!',
-        ephemeral: true,
       });
       return;
     }
@@ -39,11 +40,10 @@ export class SuggestCommand {
       !member.voice.channelId ||
       member.voice.channelId != CurrentState.movieChannelId
     ) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.cross +
           ` Um Filme vorzuschlagen musst du dem <#${CurrentState.movieChannelId}> Kanal beitreten.`,
-        ephemeral: true,
       });
       return;
     }
@@ -102,9 +102,8 @@ export class SuggestCommand {
   ) {
     const data = await this.tmdb.searchMovie(title);
     if (data.length <= 0) {
-      interaction.reply({
+      interaction.editReply({
         content: Emoji.cross + ' Der Film konnte nicht gefunden werden.',
-        ephemeral: true,
       });
       return;
     }
@@ -112,7 +111,7 @@ export class SuggestCommand {
     //TODO: Remove me
     console.log(data);
 
-    const embedPager = new EmbedPager<Movie>(data, this.generateMovieMessage);
+    const embedPager = new EmbedPager<Movie>(data, generateMovieEmbed);
     embedPager.run(interaction, async (selectedMovie) => {
       const dbMovie = await this.suggestionService.findByMovieId(
         selectedMovie.id,
@@ -125,15 +124,5 @@ export class SuggestCommand {
         embeds: [getStartEmbed(CurrentState.suggestionCount)],
       });
     });
-  }
-
-  private generateMovieMessage(movie: Movie) {
-    const embed = new EmbedBuilder()
-      .setTitle(movie.title)
-      .setDescription(movie.overview.length > 0 ? movie.overview : null)
-      .setThumbnail(movie.poster)
-      .setImage(movie.backdrop);
-
-    return embed;
   }
 }

@@ -1,5 +1,6 @@
 import { MovieModule } from '@modules/movie/movie.module';
 import { SuggestionModule } from '@modules/suggestion/suggestion.module';
+import { VotingModule } from '@modules/voting/voting.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -30,6 +31,7 @@ import { TMDBModule } from './lib/tmdb/tmdb.module';
     TMDBModule,
     SuggestionModule,
     MovieModule,
+    VotingModule,
   ],
   providers: [AppUpdate],
 })

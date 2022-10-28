@@ -11,5 +11,6 @@ export class CurrentState {
 
   public static movieChannelId: string;
   public static startMessage: Message;
+  public static continueMessage: Message;
   public static suggestionCount = 0;
 }

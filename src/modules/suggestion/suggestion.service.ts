@@ -16,6 +16,26 @@ export class SuggestionService {
     await this.suggestionsRepository.clear();
   }
 
+  async getMovieIds() {
+    const movieIds: number[] = [];
+
+    const suggestions = await this.suggestionsRepository.find({
+      select: ['movieId'],
+    });
+
+    suggestions.forEach((suggestion) => {
+      if (!movieIds.includes(suggestion.movieId)) {
+        movieIds.push(suggestion.movieId);
+      }
+    });
+
+    return movieIds;
+  }
+
+  async count() {
+    return (await this.getMovieIds()).length;
+  }
+
   async findByMovieId(movieId: number) {
     return this.suggestionsRepository.findOneBy({ movieId });
   }
