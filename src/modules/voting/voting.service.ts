@@ -1,3 +1,4 @@
+import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -8,7 +9,17 @@ export class VotingService {
   constructor(
     @InjectRepository(VoteEntity)
     private readonly voteRepository: Repository<VoteEntity>,
+
+    private readonly suggestionService: SuggestionService,
   ) {}
+
+  async clear() {
+    await this.voteRepository.clear();
+  }
+
+  async count(): Promise<number> {
+    return this.voteRepository.count();
+  }
 
   async checkVoting(userId: string, movieId: number): Promise<boolean> {
     const vote = await this.voteRepository.countBy({ userId, movieId });
@@ -23,5 +34,26 @@ export class VotingService {
     } else {
       await this.voteRepository.save({ userId, movieId });
     }
+  }
+
+  async getMostVoted(): Promise<number[]> {
+    let mostVotedIds = [];
+    let mostVotedVotes = 0;
+
+    const movieIds = await this.suggestionService.getMovieIds();
+
+    for (const movieId of movieIds) {
+      const votes = await this.voteRepository.countBy({ movieId });
+
+      if (votes < mostVotedVotes) continue;
+
+      if (votes > mostVotedVotes) {
+        mostVotedIds = [];
+        mostVotedVotes = votes;
+      }
+      mostVotedIds.push(movieId);
+    }
+
+    return mostVotedIds;
   }
 }

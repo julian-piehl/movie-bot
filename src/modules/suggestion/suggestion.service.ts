@@ -59,4 +59,8 @@ export class SuggestionService {
       movieId: movie.id,
     });
   }
+
+  async delete(movieId: number) {
+    this.suggestionsRepository.delete({ movieId });
+  }
 }

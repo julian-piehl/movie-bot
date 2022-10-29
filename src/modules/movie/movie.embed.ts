@@ -31,3 +31,9 @@ export function getContinueEmbed() {
       'https://nbcpalmsprings.com/wp-content/uploads/sites/8/2021/12/BEST-MOVIES-OF-2021.jpeg',
     );
 }
+
+export function getEndEmbed() {
+  return new EmbedBuilder()
+    .setTitle('Die Entscheidung ist gefallen!')
+    .setDescription('Hier seht ihr nun den Film des Abends');
+}

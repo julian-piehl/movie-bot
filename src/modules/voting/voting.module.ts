@@ -13,6 +13,6 @@ import { VotingService } from './voting.service';
     TMDBModule,
   ],
   providers: [VotingButton, VotingService],
-  exports: [],
+  exports: [VotingService],
 })
 export class VotingModule {}
