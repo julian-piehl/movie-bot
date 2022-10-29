@@ -36,12 +36,12 @@ export class VotingButton {
     }
 
     const movieIds = await this.suggestionService.getMovieIds();
-    const movies: Movie[] = [];
 
-    for (let i = 0; i < movieIds.length; i++) {
-      const movie = await this.tmdb.getMovie(movieIds[i] as unknown as number);
-      movies.push(movie);
-    }
+    const movies = await Promise.all(
+      movieIds.map(async (movieId) => {
+        return this.tmdb.getMovie(movieId);
+      }),
+    );
 
     const embedPager = new VotingEmbedPager<Movie>(movies, generateMovieEmbed);
     embedPager.onPagination(async (data) => {
