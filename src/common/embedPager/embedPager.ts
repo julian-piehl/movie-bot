@@ -52,9 +52,16 @@ export class EmbedPager<T> {
   ) {
     this.currentIndex = 0;
 
+    let buttons: ButtonBuilder[];
+    if (this.runOnPagination) {
+      buttons = await this.runOnPagination(this.data[0]);
+    } else {
+      buttons = [selectButton];
+    }
+
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       lastButton.setDisabled(true),
-      ...this.buttons,
+      ...buttons,
       nextButton.setDisabled(this.data.length <= 1),
     );
 
