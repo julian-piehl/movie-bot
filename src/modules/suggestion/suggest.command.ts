@@ -1,6 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { CommandInteraction } from 'discord.js';
-import { Context, Options, SlashCommand } from 'necord';
+import {
+  ActionRowBuilder,
+  CommandInteraction,
+  ModalBuilder,
+  ModalSubmitInteraction,
+  TextInputBuilder,
+  TextInputStyle,
+} from 'discord.js';
+import { Button, ButtonContext, Context, Options, SlashCommand } from 'necord';
 import { CurrentState, Phase } from '../../currentState';
 import { SuggestCommandDto } from './dto/suggestCommand.dto';
 import { Emoji } from '@common/emoji.enum';
@@ -51,13 +58,12 @@ export class SuggestCommand {
     this.suggestSelector(interaction, query);
   }
 
-  /*@Button('suggest')
+  @Button('suggest')
   public async onButton(@Context() [interaction]: ButtonContext) {
     if (CurrentState.phase != Phase.Suggestions) {
       interaction.reply({
         content:
           Emoji.cross + ' Vorschläge können aktuell nicht eingereicht werden!',
-        ephemeral: true,
       });
       return;
     }
@@ -91,13 +97,14 @@ export class SuggestCommand {
       });
 
     if (submitted) {
+      await submitted.deferReply({ ephemeral: true });
       const movieTitle = submitted.fields.getTextInputValue('suggestInput');
       this.suggestSelector(submitted, movieTitle);
     }
-  }*/
+  }
 
   async suggestSelector(
-    interaction: CommandInteraction /*| ModalSubmitInteraction*/,
+    interaction: CommandInteraction | ModalSubmitInteraction,
     title: string,
   ) {
     const data = await this.tmdb.searchMovie(title);

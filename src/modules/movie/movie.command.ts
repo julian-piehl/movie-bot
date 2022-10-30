@@ -67,19 +67,19 @@ export class MovieCommand {
       content: Emoji.check + ' Vorschlagphase gestartet.',
     });
 
-    /*const button = new ButtonBuilder()
+    const button = new ButtonBuilder()
       .setCustomId('suggest')
       .setLabel('Jetzt vorschlagen')
       .setStyle(ButtonStyle.Primary);
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       button,
-    );*/
+    );
 
     const suggestionCount = await this.suggestionService.count();
     const message = await interaction.channel.send({
       embeds: [getStartEmbed(suggestionCount)],
-      //   components: [actionRow],
+      components: [actionRow],
     });
     CurrentState.startMessage = message;
   }

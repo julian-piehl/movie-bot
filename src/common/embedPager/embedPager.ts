@@ -8,6 +8,7 @@ import {
   InteractionCollector,
   InteractionResponse,
   Message,
+  ModalSubmitInteraction,
 } from 'discord.js';
 import {
   lastButton,
@@ -47,7 +48,8 @@ export class EmbedPager<T> {
   async run(
     interaction:
       | CommandInteraction
-      | ButtonInteraction /*| ModalSubmitInteraction*/,
+      | ButtonInteraction
+      | ModalSubmitInteraction,
     callback: (data: T) => any,
   ) {
     this.currentIndex = 0;
