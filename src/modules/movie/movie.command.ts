@@ -59,7 +59,6 @@ export class MovieCommand {
     //   this.suggestionService.clear(),
     //   this.votingService.clear(),
     // ]);
-    CurrentState.suggestionCount = 0;
 
     CurrentState.movieChannelId = member.voice.channelId;
     CurrentState.phase = Phase.Suggestions;
@@ -77,8 +76,9 @@ export class MovieCommand {
       button,
     );*/
 
+    const suggestionCount = await this.suggestionService.count();
     const message = await interaction.channel.send({
-      embeds: [getStartEmbed(0)],
+      embeds: [getStartEmbed(suggestionCount)],
       //   components: [actionRow],
     });
     CurrentState.startMessage = message;
@@ -194,7 +194,6 @@ export class MovieCommand {
     CurrentState.continueMessage.delete();
     CurrentState.continueMessage = null;
     CurrentState.phase = Phase.None;
-    CurrentState.suggestionCount = 0;
 
     interaction.editReply({
       content: Emoji.check + ' Abstimmung beendet.',

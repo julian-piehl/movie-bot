@@ -110,15 +110,11 @@ export class SuggestCommand {
 
     const embedPager = new EmbedPager<Movie>(data, generateMovieEmbed);
     embedPager.run(interaction, async (selectedMovie) => {
-      const dbMovie = await this.suggestionService.findByMovieId(
-        selectedMovie.id,
-      );
-      if (!dbMovie) CurrentState.suggestionCount++;
-
-      this.suggestionService.update(interaction.user, selectedMovie);
+      await this.suggestionService.update(interaction.user, selectedMovie);
+      const suggestionCount = await this.suggestionService.count();
 
       CurrentState.startMessage.edit({
-        embeds: [getStartEmbed(CurrentState.suggestionCount)],
+        embeds: [getStartEmbed(suggestionCount)],
       });
     });
   }

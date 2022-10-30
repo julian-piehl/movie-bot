@@ -54,7 +54,7 @@ export class SuggestionService {
       if (found) return;
     }
 
-    this.suggestionsRepository.save({
+    await this.suggestionsRepository.save({
       userId: user.id,
       movieId: movie.id,
     });
