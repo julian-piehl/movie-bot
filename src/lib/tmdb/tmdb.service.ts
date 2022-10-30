@@ -1,13 +1,29 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  ServiceUnavailableException,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { catchError, lastValueFrom, map } from 'rxjs';
 import { Movie } from './dto/movie.dto';
 
 @Injectable()
 export class TMDBService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
+  ) {}
 
   async searchMovie(query: string): Promise<Movie[]> {
+    const cacheValue = await this.cacheManager.get<Movie[]>(
+      `tmdb:search:${query}`,
+    );
+    if (cacheValue) return cacheValue;
+
     const request = this.httpService
       .get('/search/movie', {
         params: {
@@ -24,10 +40,16 @@ export class TMDBService {
       );
 
     const movies = await lastValueFrom<Movie[]>(request);
+    this.cacheManager.set(`tmdb:search:${query}`, movies);
     return movies;
   }
 
   async getMovie(movieId: number): Promise<Movie> {
+    const cacheValue = await this.cacheManager.get<Movie>(
+      `tmdb:movie:${movieId}`,
+    );
+    if (cacheValue) return cacheValue;
+
     const request = this.httpService
       .get(`/movie/${movieId}`, {
         params: {
@@ -43,6 +65,7 @@ export class TMDBService {
       );
 
     const movie = await lastValueFrom<Movie>(request);
+    this.cacheManager.set(`tmdb:movie:${movieId}`, movie);
     return movie;
   }
 }
