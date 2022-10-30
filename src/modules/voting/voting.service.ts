@@ -21,6 +21,10 @@ export class VotingService {
     return this.voteRepository.count();
   }
 
+  async countByUser(userId: string): Promise<number> {
+    return this.voteRepository.countBy({ userId });
+  }
+
   async checkVoting(userId: string, movieId: number): Promise<boolean> {
     const vote = await this.voteRepository.countBy({ userId, movieId });
     return vote > 0;

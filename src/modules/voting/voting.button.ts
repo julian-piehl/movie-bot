@@ -3,6 +3,7 @@ import { Emoji } from '@common/emoji.enum';
 import { generateMovieEmbed } from '@modules/movie/movie.embed';
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { Injectable } from '@nestjs/common';
+import { ButtonBuilder, ButtonStyle } from 'discord.js';
 import { Button, ButtonContext, Context } from 'necord';
 import { CurrentState } from 'src/currentState';
 import { Movie } from 'src/lib/tmdb/dto/movie.dto';
@@ -49,6 +50,26 @@ export class VotingButton {
         interaction.user.id,
         data.id,
       );
+
+      if (process.env.MOVIEBOT_LIMIT_VOTES == 'true') {
+        const voteCount = await this.votingService.countByUser(
+          interaction.user.id,
+        );
+        const maxVotes = Math.floor(movies.length / 3) + 1;
+
+        const remainingVotesButton = new ButtonBuilder()
+          .setCustomId('placeholder')
+          .setStyle(ButtonStyle.Primary)
+          .setDisabled(true)
+          .setLabel(`< ${maxVotes - voteCount} >`);
+
+        return [
+          voteButton.setDisabled(isVoted || voteCount >= maxVotes),
+          remainingVotesButton,
+          unvoteButton.setDisabled(!isVoted),
+        ];
+      }
+
       return [
         voteButton.setDisabled(isVoted),
         unvoteButton.setDisabled(!isVoted),
