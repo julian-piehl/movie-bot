@@ -55,7 +55,7 @@ export class MovieCommand {
     }
 
     // await this.suggestionService.clear();
-    CurrentState.suggestionCount = 3;
+    CurrentState.suggestionCount = 0;
 
     CurrentState.movieChannelId = member.voice.channelId;
     CurrentState.phase = Phase.Suggestions;
