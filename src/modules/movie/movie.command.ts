@@ -54,7 +54,11 @@ export class MovieCommand {
       return;
     }
 
-    // await this.suggestionService.clear();
+    // TODO: Uncomment next line
+    // await Promise.all([
+    //   this.suggestionService.clear(),
+    //   this.votingService.clear(),
+    // ]);
     CurrentState.suggestionCount = 0;
 
     CurrentState.movieChannelId = member.voice.channelId;
