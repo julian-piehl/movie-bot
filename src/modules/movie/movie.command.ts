@@ -37,19 +37,19 @@ export class MovieCommand {
     description: 'Startet die Vorschlagphase',
   })
   public async onStart(@Context() [interaction]: [CommandInteraction]) {
+    await interaction.deferReply({ ephemeral: true });
+
     if (CurrentState.phase != Phase.None) {
-      interaction.reply({
+      interaction.editReply({
         content: Emoji.cross + ' Die Abstimmung läuft bereits!',
-        ephemeral: true,
       });
       return;
     }
 
     const member = await interaction.guild.members.fetch(interaction.user.id);
     if (!member.voice.channelId) {
-      interaction.reply({
+      interaction.editReply({
         content: Emoji.cross + ' Du musst dich in einem Sprachkanal befinden!',
-        ephemeral: true,
       });
       return;
     }
@@ -60,9 +60,8 @@ export class MovieCommand {
     CurrentState.movieChannelId = member.voice.channelId;
     CurrentState.phase = Phase.Suggestions;
 
-    interaction.reply({
+    interaction.editReply({
       content: Emoji.check + ' Vorschlagphase gestartet.',
-      ephemeral: true,
     });
 
     /*const button = new ButtonBuilder()
@@ -86,22 +85,22 @@ export class MovieCommand {
     description: 'Startet die Votingphase',
   })
   public async onContinue(@Context() [interaction]: [CommandInteraction]) {
+    await interaction.deferReply({ ephemeral: true });
+
     if (CurrentState.phase != Phase.Suggestions) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.cross +
           ' Die Abstimmung befindet sich nicht in der Vorschlagphase!',
-        ephemeral: true,
       });
       return;
     }
     const suggestionCount = await this.suggestionService.count();
     if (suggestionCount == 0) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.cross +
           ' Es wurden noch keine Filme zur Abstimmung vorgeschlagen!',
-        ephemeral: true,
       });
       return;
     }
@@ -110,9 +109,8 @@ export class MovieCommand {
     CurrentState.startMessage = null;
     CurrentState.phase = Phase.Voting;
 
-    interaction.reply({
+    interaction.editReply({
       content: Emoji.check + ' Votingphase gestartet.',
-      ephemeral: true,
     });
 
     const button = new ButtonBuilder()
@@ -136,31 +134,30 @@ export class MovieCommand {
     description: 'Beendet das Voting',
   })
   public async onEnd(@Context() [interaction]: [CommandInteraction]) {
+    await interaction.deferReply({ ephemeral: true });
+
     if (CurrentState.phase != Phase.Voting) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.cross +
           ' Die Abstimmung befindet sich nicht in der Votingphase!',
-        ephemeral: true,
       });
       return;
     }
     const mostVoted = await this.votingService.getMostVoted();
     if (mostVoted.length == 0) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.cross + ' Es hat noch niemand hat für einen Film abgestimmt!',
-        ephemeral: true,
       });
       return;
     }
 
     if (mostVoted.length > 1) {
-      interaction.reply({
+      interaction.editReply({
         content:
           Emoji.check +
           ' Es gab mehr als einen Gewinner. Voting wird erneut gestartet!',
-        ephemeral: true,
       });
 
       const movieIds = (await this.suggestionService.getMovieIds()).filter(
@@ -195,9 +192,8 @@ export class MovieCommand {
     CurrentState.phase = Phase.None;
     CurrentState.suggestionCount = 0;
 
-    interaction.reply({
+    interaction.editReply({
       content: Emoji.check + ' Abstimmung beendet.',
-      ephemeral: true,
     });
 
     const movie = await this.tmdbService.getMovie(mostVoted[0]);
