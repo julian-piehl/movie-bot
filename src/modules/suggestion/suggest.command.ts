@@ -108,9 +108,6 @@ export class SuggestCommand {
       return;
     }
 
-    //TODO: Remove me
-    console.log(data);
-
     const embedPager = new EmbedPager<Movie>(data, generateMovieEmbed);
     embedPager.run(interaction, async (selectedMovie) => {
       const dbMovie = await this.suggestionService.findByMovieId(
