@@ -24,7 +24,6 @@ import { TMDBModule } from './lib/tmdb/tmdb.module';
     }),
     NecordModule.forRoot({
       token: process.env.DISCORD_TOKEN,
-      //   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
       development: [process.env.DISCORD_DEV_GUILD_ID],
     }),
