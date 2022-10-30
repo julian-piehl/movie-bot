@@ -193,6 +193,7 @@ export class MovieCommand {
     CurrentState.continueMessage.delete();
     CurrentState.continueMessage = null;
     CurrentState.phase = Phase.None;
+    CurrentState.suggestionCount = 0;
 
     interaction.reply({
       content: Emoji.check + ' Abstimmung beendet.',
