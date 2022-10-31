@@ -6,7 +6,7 @@ import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { Injectable } from '@nestjs/common';
 import { ButtonBuilder, ButtonStyle } from 'discord.js';
 import { Button, ButtonContext, Context } from 'necord';
-import { CurrentState } from 'src/currentState';
+import { CurrentState, Phase } from 'src/currentState';
 import { Movie } from 'src/lib/tmdb/dto/movie.dto';
 import { TMDBService } from 'src/lib/tmdb/tmdb.service';
 import { VotingService } from './voting.service';
@@ -22,6 +22,13 @@ export class VotingButton {
   @Button('startVote')
   async onVote(@Context() [interaction]: ButtonContext) {
     await interaction.deferReply({ ephemeral: true });
+
+    if (CurrentState.phase != Phase.Voting) {
+      interaction.editReply({
+        content: Emoji.cross + ' Aktuell kann nicht abgestimmt werden!',
+      });
+      return;
+    }
 
     const member = await interaction.guild.members.fetch(interaction.user.id);
     if (
@@ -78,6 +85,7 @@ export class VotingButton {
     });
 
     embedPager.run(interaction, async (movie) => {
+      if (CurrentState.phase != Phase.Voting) return;
       await this.votingService.switchVoting(interaction.user.id, movie.id);
     });
   }
