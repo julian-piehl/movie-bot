@@ -110,7 +110,7 @@ export class EmbedPager<T> {
     interaction: ButtonInteraction,
     callback: (data: T) => any,
   ) {
-    if (this.setStopOnCollect) collector.stop();
+    if (this.stopOnCollect) collector.stop();
 
     await callback(this.data[this.currentIndex]);
 
