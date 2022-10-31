@@ -1,5 +1,5 @@
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'discord.js';
 import { Repository } from 'typeorm';
@@ -7,6 +7,8 @@ import { VoteEntity } from './entity/vote.entity';
 
 @Injectable()
 export class VotingService {
+  private readonly logger = new Logger(VotingService.name);
+
   constructor(
     @InjectRepository(VoteEntity)
     private readonly voteRepository: Repository<VoteEntity>,
@@ -16,6 +18,7 @@ export class VotingService {
 
   async clear() {
     await this.voteRepository.clear();
+    this.logger.debug(`Cleared votes.`);
   }
 
   async count(): Promise<number> {
@@ -39,8 +42,10 @@ export class VotingService {
 
     if (isVoted) {
       await this.voteRepository.delete({ userId: user.id, movieId });
+      this.logger.log(`${user.tag} unvoted ${movieId}.`);
     } else {
       await this.voteRepository.save({ userId: user.id, movieId });
+      this.logger.log(`${user.tag} voted ${movieId}.`);
     }
   }
 

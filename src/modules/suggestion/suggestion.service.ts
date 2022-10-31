@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'discord.js';
 import { Movie } from 'src/lib/tmdb/dto/movie.dto';
@@ -7,6 +7,8 @@ import { SuggestionEntity } from './entity/suggestion.entity';
 
 @Injectable()
 export class SuggestionService {
+  private readonly logger = new Logger(SuggestionService.name);
+
   constructor(
     @InjectRepository(SuggestionEntity)
     private suggestionsRepository: Repository<SuggestionEntity>,
@@ -14,6 +16,7 @@ export class SuggestionService {
 
   async clear() {
     await this.suggestionsRepository.clear();
+    this.logger.debug(`Cleared suggestions.`);
   }
 
   async getMovieIds() {
@@ -58,9 +61,12 @@ export class SuggestionService {
       userId: user.id,
       movieId: movie.id,
     });
+
+    this.logger.log(`${user.tag} suggested "${movie.title}" (${movie.id}).`);
   }
 
   async delete(movieId: number) {
     this.suggestionsRepository.delete({ movieId });
+    this.logger.debug(`Deleted movie ${movieId}.`);
   }
 }

@@ -1,6 +1,7 @@
 import { Emoji } from '@common/emoji.enum';
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { VotingService } from '@modules/voting/voting.service';
+import { Logger } from '@nestjs/common';
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -26,6 +27,8 @@ export const MovieCommandDecorator = createCommandGroupDecorator({
 
 @MovieCommandDecorator()
 export class MovieCommand {
+  private readonly logger = new Logger(MovieCommand.name);
+
   constructor(
     private readonly suggestionService: SuggestionService,
     private readonly votingService: VotingService,
@@ -57,6 +60,7 @@ export class MovieCommand {
     interaction.editReply({
       content: Emoji.check + ' Vorschlagphase gestartet.',
     });
+    this.logger.log(`${interaction.user.tag} started the suggestion phase.`);
 
     // TODO: Uncomment next line
     // await Promise.all([
@@ -112,6 +116,7 @@ export class MovieCommand {
     interaction.editReply({
       content: Emoji.check + ' Votingphase gestartet.',
     });
+    this.logger.log(`${interaction.user.tag} started the voting phase.`);
 
     CurrentState.startMessage.delete();
     CurrentState.startMessage = null;
@@ -163,6 +168,9 @@ export class MovieCommand {
           Emoji.check +
           ' Es gab mehr als einen Gewinner. Voting wird erneut gestartet!',
       });
+      this.logger.log(
+        `${interaction.user.tag} tried to end the voting phase but there where more then one winner.`,
+      );
 
       const movieIds = (await this.suggestionService.getMovieIds()).filter(
         (item) => !mostVoted.includes(item),
@@ -203,5 +211,7 @@ export class MovieCommand {
     interaction.channel.send({
       embeds: [getEndEmbed(), generateMovieEmbed(movie)],
     });
+    this.logger.log(`${interaction.user.tag} ended the voting phase.`);
+    this.logger.log(`Todays movie is "${movie.title}" (${movie.id}).`);
   }
 }
