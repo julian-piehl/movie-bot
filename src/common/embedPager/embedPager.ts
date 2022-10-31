@@ -153,11 +153,4 @@ export class EmbedPager<T> {
       ],
     });
   }
-
-  //   protected async onPagination(
-  //     collector: InteractionCollector<ButtonInteraction>,
-  //     interaction: ButtonInteraction,
-  //   ): Promise<ButtonBuilder[]> {
-  //     return this.buttons;
-  //   }
 }
