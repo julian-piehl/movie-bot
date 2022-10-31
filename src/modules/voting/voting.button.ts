@@ -1,3 +1,4 @@
+import { EmbedPager } from '@common/embedPager/embedPager';
 import { unvoteButton, voteButton } from '@common/embedPager/pageButton';
 import { Emoji } from '@common/emoji.enum';
 import { generateMovieEmbed } from '@modules/movie/movie.embed';
@@ -8,7 +9,6 @@ import { Button, ButtonContext, Context } from 'necord';
 import { CurrentState } from 'src/currentState';
 import { Movie } from 'src/lib/tmdb/dto/movie.dto';
 import { TMDBService } from 'src/lib/tmdb/tmdb.service';
-import { VotingEmbedPager } from './voting.embedPager';
 import { VotingService } from './voting.service';
 
 @Injectable()
@@ -44,7 +44,8 @@ export class VotingButton {
       }),
     );
 
-    const embedPager = new VotingEmbedPager<Movie>(movies, generateMovieEmbed);
+    const embedPager = new EmbedPager<Movie>(movies, generateMovieEmbed);
+    embedPager.setStopOnCollect(false);
     embedPager.onPagination(async (data) => {
       const isVoted = await this.votingService.checkVoting(
         interaction.user.id,
@@ -75,6 +76,7 @@ export class VotingButton {
         unvoteButton.setDisabled(!isVoted),
       ];
     });
+
     embedPager.run(interaction, async (movie) => {
       await this.votingService.switchVoting(interaction.user.id, movie.id);
     });

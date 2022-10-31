@@ -25,6 +25,7 @@ export class EmbedPager<T> {
   protected timeout;
   protected idle = 1000 * 60 * 5;
   protected ephemeral = true;
+  protected stopOnCollect = true;
   protected runOnPagination: (data: T) => Promise<ButtonBuilder[]>;
 
   constructor(dataArray: T[], embedBuilder: (data: T) => EmbedBuilder) {
@@ -42,6 +43,10 @@ export class EmbedPager<T> {
 
   setEphemeral(value: boolean) {
     this.ephemeral = value;
+  }
+
+  setStopOnCollect(value: boolean) {
+    this.stopOnCollect = value;
   }
 
   onPagination(event: (data: T) => Promise<ButtonBuilder[]>) {
@@ -107,18 +112,23 @@ export class EmbedPager<T> {
     interaction: ButtonInteraction,
     callback: (data: T) => any,
   ) {
-    collector.stop();
-    callback(this.data[this.currentIndex]);
+    if (this.setStopOnCollect) collector.stop();
 
-    await interaction.editReply({
-      components: [],
-      embeds: [
-        this.embedBuilder(this.data[this.currentIndex]).setAuthor({
-          name: 'Vorschlag eingereicht',
-          iconURL: interaction.user.avatarURL(),
-        }),
-      ],
-    });
+    await callback(this.data[this.currentIndex]);
+
+    if (this.stopOnCollect) {
+      await interaction.editReply({
+        components: [],
+        embeds: [
+          this.embedBuilder(this.data[this.currentIndex]).setAuthor({
+            name: 'Vorschlag eingereicht',
+            iconURL: interaction.user.avatarURL(),
+          }),
+        ],
+      });
+    } else {
+      this.rerenderEmbed(interaction);
+    }
   }
 
   protected async rerenderEmbed(interaction: ButtonInteraction) {
