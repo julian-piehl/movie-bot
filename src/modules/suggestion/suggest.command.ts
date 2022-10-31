@@ -98,6 +98,16 @@ export class SuggestCommand {
 
     if (submitted) {
       await submitted.deferReply({ ephemeral: true });
+
+      if (CurrentState.phase != Phase.Suggestions) {
+        submitted.editReply({
+          content:
+            Emoji.cross +
+            ' Vorschläge können aktuell nicht eingereicht werden!',
+        });
+        return;
+      }
+
       const movieTitle = submitted.fields.getTextInputValue('suggestInput');
       this.suggestSelector(submitted, movieTitle);
     }
