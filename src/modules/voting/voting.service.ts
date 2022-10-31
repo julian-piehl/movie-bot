@@ -1,6 +1,7 @@
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'discord.js';
 import { Repository } from 'typeorm';
 import { VoteEntity } from './entity/vote.entity';
 
@@ -21,22 +22,25 @@ export class VotingService {
     return this.voteRepository.count();
   }
 
-  async countByUser(userId: string): Promise<number> {
-    return this.voteRepository.countBy({ userId });
+  async countByUser(user: User): Promise<number> {
+    return this.voteRepository.countBy({ userId: user.id });
   }
 
-  async checkVoting(userId: string, movieId: number): Promise<boolean> {
-    const vote = await this.voteRepository.countBy({ userId, movieId });
+  async checkVoting(user: User, movieId: number): Promise<boolean> {
+    const vote = await this.voteRepository.countBy({
+      userId: user.id,
+      movieId,
+    });
     return vote > 0;
   }
 
-  async switchVoting(userId: string, movieId: number) {
-    const isVoted = await this.checkVoting(userId, movieId);
+  async switchVoting(user: User, movieId: number) {
+    const isVoted = await this.checkVoting(user, movieId);
 
     if (isVoted) {
-      await this.voteRepository.delete({ userId, movieId });
+      await this.voteRepository.delete({ userId: user.id, movieId });
     } else {
-      await this.voteRepository.save({ userId, movieId });
+      await this.voteRepository.save({ userId: user.id, movieId });
     }
   }
 

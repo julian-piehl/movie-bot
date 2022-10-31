@@ -55,13 +55,13 @@ export class VotingButton {
     embedPager.setStopOnCollect(false);
     embedPager.onPagination(async (data) => {
       const isVoted = await this.votingService.checkVoting(
-        interaction.user.id,
+        interaction.user,
         data.id,
       );
 
       if (process.env.MOVIEBOT_LIMIT_VOTES == 'true') {
         const voteCount = await this.votingService.countByUser(
-          interaction.user.id,
+          interaction.user,
         );
         const maxVotes = Math.floor(movies.length / 3) + 1;
 
@@ -86,7 +86,7 @@ export class VotingButton {
 
     embedPager.run(interaction, async (movie) => {
       if (CurrentState.phase != Phase.Voting) return;
-      await this.votingService.switchVoting(interaction.user.id, movie.id);
+      await this.votingService.switchVoting(interaction.user, movie.id);
     });
   }
 }
