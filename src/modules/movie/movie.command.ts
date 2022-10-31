@@ -54,6 +54,10 @@ export class MovieCommand {
       return;
     }
 
+    interaction.editReply({
+      content: Emoji.check + ' Vorschlagphase gestartet.',
+    });
+
     // TODO: Uncomment next line
     // await Promise.all([
     //   this.suggestionService.clear(),
@@ -62,10 +66,6 @@ export class MovieCommand {
 
     CurrentState.movieChannelId = member.voice.channelId;
     CurrentState.phase = Phase.Suggestions;
-
-    interaction.editReply({
-      content: Emoji.check + ' Vorschlagphase gestartet.',
-    });
 
     const button = new ButtonBuilder()
       .setCustomId('suggest')
@@ -109,13 +109,13 @@ export class MovieCommand {
       return;
     }
 
-    CurrentState.startMessage.delete();
-    CurrentState.startMessage = null;
-    CurrentState.phase = Phase.Voting;
-
     interaction.editReply({
       content: Emoji.check + ' Votingphase gestartet.',
     });
+
+    CurrentState.startMessage.delete();
+    CurrentState.startMessage = null;
+    CurrentState.phase = Phase.Voting;
 
     const button = new ButtonBuilder()
       .setCustomId('startVote')
@@ -191,13 +191,13 @@ export class MovieCommand {
       return;
     }
 
-    CurrentState.continueMessage.delete();
-    CurrentState.continueMessage = null;
-    CurrentState.phase = Phase.None;
-
     interaction.editReply({
       content: Emoji.check + ' Abstimmung beendet.',
     });
+
+    CurrentState.continueMessage.delete();
+    CurrentState.continueMessage = null;
+    CurrentState.phase = Phase.None;
 
     const movie = await this.tmdbService.getMovie(mostVoted[0]);
     interaction.channel.send({
