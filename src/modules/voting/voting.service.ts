@@ -49,7 +49,7 @@ export class VotingService {
     for (const movieId of movieIds) {
       const votes = await this.voteRepository.countBy({ movieId });
 
-      if (votes < mostVotedVotes) continue;
+      if (votes == 0 || votes < mostVotedVotes) continue;
 
       if (votes > mostVotedVotes) {
         mostVotedIds = [];
