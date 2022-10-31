@@ -1,4 +1,5 @@
 import { Emoji } from '@common/emoji.enum';
+import { HistoryService } from '@modules/history/history.service';
 import { SuggestionService } from '@modules/suggestion/suggestion.service';
 import { VotingService } from '@modules/voting/voting.service';
 import { Logger } from '@nestjs/common';
@@ -6,7 +7,9 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  Collection,
   CommandInteraction,
+  GuildMember,
   PermissionFlagsBits,
 } from 'discord.js';
 import { Context, createCommandGroupDecorator, Subcommand } from 'necord';
@@ -33,6 +36,7 @@ export class MovieCommand {
     private readonly suggestionService: SuggestionService,
     private readonly votingService: VotingService,
     private readonly tmdbService: TMDBService,
+    private readonly historyService: HistoryService,
   ) {}
 
   @Subcommand({
@@ -212,6 +216,14 @@ export class MovieCommand {
       embeds: [getEndEmbed(), generateMovieEmbed(movie)],
     });
     this.logger.log(`${interaction.user.tag} ended the voting phase.`);
-    this.logger.log(`Todays movie is "${movie.title}" (${movie.id}).`);
+
+    const channel = await interaction.guild.channels.fetch(
+      CurrentState.movieChannelId,
+    );
+    const members = channel.members as Collection<string, GuildMember>;
+    this.historyService.save(
+      movie,
+      members.map((member) => member.user),
+    );
   }
 }

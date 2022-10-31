@@ -31,6 +31,7 @@ import { TMDBModule } from './lib/tmdb/tmdb.module';
     SuggestionModule,
     MovieModule,
     VotingModule,
+    HistoryModule,
   ],
   providers: [AppUpdate],
 })
