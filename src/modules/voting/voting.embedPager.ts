@@ -13,7 +13,6 @@ import {
 
 export class VotingEmbedPager<T> extends EmbedPager<T> {
   protected buttons = [voteButton, unvoteButton];
-  protected timeout = 1000 * 60 * 10;
 
   protected async onButton(
     collector: InteractionCollector<ButtonInteraction>,

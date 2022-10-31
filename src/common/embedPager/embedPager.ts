@@ -22,7 +22,8 @@ export class EmbedPager<T> {
   protected readonly embedBuilder: (data: T) => EmbedBuilder;
 
   protected currentIndex: number;
-  protected timeout = 1000 * 60 * 5;
+  protected timeout;
+  protected idle = 1000 * 60 * 5;
   protected ephemeral = true;
   protected runOnPagination: (data: T) => Promise<ButtonBuilder[]>;
 
@@ -35,6 +36,10 @@ export class EmbedPager<T> {
 
   setTimeout(ms: number) {
     this.timeout = ms;
+  }
+
+  setIdle(ms: number) {
+    this.idle = ms;
   }
 
   setEphemeral(value: boolean) {
@@ -79,6 +84,7 @@ export class EmbedPager<T> {
     const collector = message.createMessageComponentCollector({
       componentType: ComponentType.Button,
       time: this.timeout,
+      idle: this.idle,
     });
     collector.on('collect', async (button) => {
       await button.deferUpdate();
