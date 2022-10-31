@@ -4,16 +4,8 @@ import {
   InteractionCollector,
 } from 'discord.js';
 import { EmbedPager } from '../../common/embedPager/embedPager';
-import {
-  lastButton,
-  nextButton,
-  unvoteButton,
-  voteButton,
-} from '../../common/embedPager/pageButton';
 
 export class VotingEmbedPager<T> extends EmbedPager<T> {
-  protected buttons = [voteButton, unvoteButton];
-
   protected async onButton(
     collector: InteractionCollector<ButtonInteraction>,
     interaction: ButtonInteraction,

@@ -27,8 +27,6 @@ export class EmbedPager<T> {
   protected ephemeral = true;
   protected runOnPagination: (data: T) => Promise<ButtonBuilder[]>;
 
-  protected buttons = [selectButton];
-
   constructor(dataArray: T[], embedBuilder: (data: T) => EmbedBuilder) {
     this.data = dataArray;
     this.embedBuilder = embedBuilder;
