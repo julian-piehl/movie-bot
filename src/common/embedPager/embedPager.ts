@@ -6,8 +6,6 @@ import {
   CommandInteraction,
   ComponentType,
   InteractionCollector,
-  InteractionResponse,
-  Message,
   ModalSubmitInteraction,
 } from 'discord.js';
 import {
