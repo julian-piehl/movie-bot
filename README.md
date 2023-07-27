@@ -1,32 +1,32 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-  <a href="https://discord.js.org"><img src="https://discord.js.org/static/logo.svg" width="546" alt="discord.js Logo" /></a>
-</p>
-
-<p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient <a href="https://discord.js.org/" target="_blank">discord.js</a> bots using <a href="https://nestjs.com" target="_blank">NestJS</a>.</p>
+# Movie Night Discord Bot
 
 ## Description
 
-Ready for you. Dont worry about setting up:
+Movie Night Discord Bot is a fun and interactive project created for my own Discord server. Its primary purpose is to help you and your friends decide which movie to watch together, making movie nights more enjoyable and engaging.
 
-- Docker
-- Devcontainer
-- Swagger
-- And other default Settings for NestJS
+## Key Features
 
+- **Movie Suggestion:** Anyone in the Discord server can suggest movies they want to watch with the group.
+- **Voting System:** After collecting movie suggestions, the bot facilitates a voting process to democratically select the movie to watch.
 
-With <a href="https://docs.nestjs.com/modules" target="_blank">NestJS Modules</a> you can make a clean code structure.
+## How to Use
 
-<a href="https://necord.org" target="_blank">Necord</a> gives you the ability to manage Slash-Commands, Context Menus, Events & Text-Commands using decorators.
+_Coming soon_
+
+## Configuration
+
+To set up the bot, follow these steps:
+
+1. Create a `.env` file using the provided `.env.example` template.
+2. Fill out the required values in the `.env` file, including your valid [TheMovieDB](https://www.themoviedb.org) API key.
 
 ## Installation
 
+First, install all dependencies:
 ```bash
 $ npm install
 ```
-
-## Running the app (Docker)
-
+Then, start the bot inside Docker:
 ```bash
 # development
 $ npm run docker:dev:up
@@ -34,9 +34,7 @@ $ npm run docker:dev:up
 # production mode
 $ npm run docker:up
 ```
-
-## Stopping the app (Docker)
-
+To stop the bot, use the following commands:
 ```bash
 # development
 $ npm run docker:dev:down
@@ -44,16 +42,10 @@ $ npm run docker:dev:down
 # production mode
 $ npm run docker:down
 ```
+## Note
 
-## Test
+Please be aware that this project won't be updated regularly. Feel free to fork and customize the bot for your own needs.
 
-```bash
-# unit tests
-$ npm run test
+## License
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
+This project is licensed under the [MIT License](LICENSE).
