@@ -2,16 +2,14 @@ version: '3.9'
 
 services:
   db:
-    image: mariadb:latest
-    command: --max_allowed_packet=32505856
+    image: postgres:15-alpine
     restart: always
-    environment:
-      - MARIADB_ROOT_PASSWORD=${DATABASE_PASSWORD}
-      - MARIADB_DATABASE=sapphire
-      - MARIADB_USER=${DATABASE_USER}
-      - MARIADB_PASSWORD=${DATABASE_PASSWORD}
     volumes:
-      - ./data/mariadb:/var/lib/mysql
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB=sapphire
   bot:
     container_name: movie-night-discord-bot
     image: movie-night-discord-bot:latest
