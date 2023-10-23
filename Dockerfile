@@ -1,25 +1,50 @@
-FROM node:16 as development
+# https://github.com/sapphiredev/spinel/blob/main/Dockerfile
+
+# ================ #
+#    Base Stage    #
+# ================ #
+
+FROM node:18-alpine as base
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-RUN npm install --only=development
+ENV CI=true
+ENV LOG_LEVEL=info
 
-COPY . .
-RUN npm run build
+COPY --chown=node:node yarn.lock .
+COPY --chown=node:node package.json .
+COPY --chown=node:node .env .env
 
+# ================ #
+#   Builder Stage  #
+# ================ #
 
-FROM node:16 as production
+FROM base as builder
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+ENV NODE_ENV="development"
+
+COPY --chown=node:node tsconfig.json .
+COPY --chown=node:node src/ src/
+
+RUN yarn install --immutable
+RUN yarn run build
+
+# ================ #
+#   Runner Stage   #
+# ================ #
+
+FROM base AS runner
+
+ENV NODE_ENV="production"
+ENV NODE_OPTIONS="--enable-source-maps"
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-RUN npm install --only=production
+COPY --chown=node:node --from=builder /usr/src/app/dist dist
 
-COPY . .
-COPY --from=development /usr/src/app/dist ./dist
+RUN yarn install --immutable --production
+RUN chown node:node /usr/src/app/
 
-CMD ["npm", "run", "start:prod"]
+USER node
+
+CMD [ "yarn", "run", "start"]
