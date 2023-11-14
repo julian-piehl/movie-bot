@@ -31,5 +31,17 @@
   "git.autofetch": true,
   "git.autoStash": true,
   "git.mergeEditor": true,
-  "git.pruneOnFetch": true
+  "git.pruneOnFetch": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "sapphire",
+      "username": "sapphire",
+      "password": "Hbnbrw-1",
+      "database": "sapphire"
+    }
+  ]
 }
