@@ -1,6 +1,6 @@
 import { EmbedBuilder } from '@discordjs/builders';
 import { ApplyOptions } from '@sapphire/decorators';
-import { UserError } from '@sapphire/framework';
+import { CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { Subcommand } from '@sapphire/plugin-subcommands';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, inlineCode } from 'discord.js';
 import { Phase, getCurrentPhase, setCurrentPhase } from '../lib/utils/currentState';
@@ -22,6 +22,7 @@ import { Phase, getCurrentPhase, setCurrentPhase } from '../lib/utils/currentSta
       chatInputRun: 'chatInputEnd',
     },
   ],
+  runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class UserCommand extends Subcommand {
   public override registerApplicationCommands(registry: Subcommand.Registry) {

@@ -1,5 +1,5 @@
 import { ApplyOptions } from '@sapphire/decorators';
-import { Command, UserError } from '@sapphire/framework';
+import { Command, CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
 import { EmbedBuilder } from 'discord.js';
 import { searchMovie } from '../lib/tmdb';
@@ -9,6 +9,7 @@ import { EmbedPager } from '../lib/utils/embedPager/embedPager';
 
 @ApplyOptions<Command.Options>({
   description: 'Schlage einen Film vor.',
+  runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class SuggestCommand extends Command {
   public override registerApplicationCommands(registry: Command.Registry) {
