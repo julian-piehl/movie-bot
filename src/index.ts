@@ -10,6 +10,7 @@ const client = new SapphireClient({
   intents: [GatewayIntentBits.Guilds],
   partials: [],
   loadDefaultErrorListeners: false,
+  loadSubcommandErrorListeners: false,
 });
 
 const main = async () => {

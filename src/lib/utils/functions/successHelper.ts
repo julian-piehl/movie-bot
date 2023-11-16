@@ -5,11 +5,16 @@ import {
   type ContextMenuCommandSuccessPayload,
   type MessageCommandSuccessPayload,
 } from '@sapphire/framework';
+import { ChatInputSubcommandSuccessPayload } from '@sapphire/plugin-subcommands';
 import { cyan } from 'colorette';
 import type { APIUser, Guild, User } from 'discord.js';
 
 export default function handleChatInputOrContextMenuCommandSuccess(
-  payload: ContextMenuCommandSuccessPayload | ChatInputCommandSuccessPayload | MessageCommandSuccessPayload
+  payload:
+    | ContextMenuCommandSuccessPayload
+    | ChatInputCommandSuccessPayload
+    | ChatInputSubcommandSuccessPayload
+    | MessageCommandSuccessPayload
 ): void {
   let successLoggerData: ReturnType<typeof getSuccessLoggerData>;
 

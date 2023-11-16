@@ -4,6 +4,7 @@ import { isNullish } from '@sapphire/utilities';
 import { EmbedBuilder } from 'discord.js';
 import { searchMovie } from '../lib/tmdb';
 import { Movie } from '../lib/tmdb/movie.model';
+import { Phase, getCurrentPhase } from '../lib/utils/currentState';
 import { EmbedPager } from '../lib/utils/embedPager/embedPager';
 
 @ApplyOptions<Command.Options>({
@@ -21,6 +22,13 @@ export class SuggestCommand extends Command {
 
   public override async chatInputRun(interaction: Command.ChatInputCommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
+
+    if (getCurrentPhase() !== Phase.Suggestions) {
+      throw new UserError({
+        identifier: 'incorrectPhase',
+        message: 'Vorschläge können aktuell nicht eingereicht werden!',
+      });
+    }
 
     const movies = await searchMovie(interaction.options.getString('title')!);
 

@@ -6,6 +6,7 @@ import {
   type ChatInputCommandErrorPayload,
   type ContextMenuCommandErrorPayload,
 } from '@sapphire/framework';
+import { ChatInputSubcommandErrorPayload } from '@sapphire/plugin-subcommands';
 import {
   BaseInteraction,
   CommandInteraction,
@@ -22,7 +23,10 @@ export const ignoredCodes = [RESTJSONErrorCodes.UnknownChannel, RESTJSONErrorCod
 
 export async function handleChatInputOrContextMenuCommandError(
   error: Error,
-  { command, interaction }: ChatInputCommandErrorPayload | ContextMenuCommandErrorPayload
+  {
+    command,
+    interaction,
+  }: ChatInputCommandErrorPayload | ChatInputSubcommandErrorPayload | ContextMenuCommandErrorPayload
 ) {
   if (typeof error === 'string') return stringError(interaction, error);
   if (error instanceof ArgumentError) return argumentError(interaction, error);

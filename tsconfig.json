@@ -4,7 +4,8 @@
     "rootDir": "src",
     "outDir": "dist",
     "tsBuildInfoFile": "dist/.tsbuildinfo",
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true
   },
   "include": ["src"]
 }

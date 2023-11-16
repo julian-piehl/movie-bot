@@ -1,8 +1,9 @@
 import type { ChatInputCommandDeniedPayload, ContextMenuCommandDeniedPayload, UserError } from '@sapphire/framework';
+import { ChatInputSubcommandDeniedPayload } from '@sapphire/plugin-subcommands';
 
 export function handleChatInputOrContextMenuCommandDenied(
   { context, message: content }: UserError,
-  { interaction }: ChatInputCommandDeniedPayload | ContextMenuCommandDeniedPayload
+  { interaction }: ChatInputCommandDeniedPayload | ChatInputSubcommandDeniedPayload | ContextMenuCommandDeniedPayload
 ) {
   if (Reflect.get(Object(context), 'silent')) return;
 
