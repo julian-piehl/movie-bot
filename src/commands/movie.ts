@@ -22,6 +22,7 @@ import { Phase, getCurrentPhase, setCurrentPhase } from '../lib/utils/currentSta
       chatInputRun: 'chatInputEnd',
     },
   ],
+  requiredUserPermissions: [PermissionFlagsBits.ManageEvents],
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class UserCommand extends Subcommand {
