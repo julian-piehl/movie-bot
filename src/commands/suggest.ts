@@ -1,11 +1,11 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { EmbedBuilder } from 'discord.js';
 import { searchMovie } from '../lib/tmdb';
 import { Movie } from '../lib/tmdb/movie.model';
 import { Phase, getCurrentPhase } from '../lib/utils/currentState';
 import { EmbedPager } from '../lib/utils/embedPager/embedPager';
+import { generateMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<Command.Options>({
   description: 'Schlage einen Film vor.',
@@ -41,11 +41,7 @@ export class SuggestCommand extends Command {
     }
 
     const embedPager = new EmbedPager<Movie>(movies, (movie: Movie) => {
-      const embed = new EmbedBuilder()
-        .setTitle(movie.title)
-        .setDescription(movie.overview.length > 0 ? movie.overview : null)
-        .setThumbnail(movie.poster)
-        .setImage(movie.backdrop);
+      const embed = generateMovieEmbed(movie);
 
       return embed;
     });

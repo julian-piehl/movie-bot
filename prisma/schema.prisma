@@ -15,3 +15,11 @@ model Suggestion {
     userId  String
     movieId Int
 }
+
+model Vote {
+    id      Int    @id @default(autoincrement())
+    userId  String
+    movieId Int
+
+    @@unique([userId, movieId])
+}

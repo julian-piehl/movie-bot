@@ -12,3 +12,9 @@ export async function searchMovie(query: string): Promise<Movie[]> {
 
   return movies.results.map((x) => new Movie(x));
 }
+
+export async function getMovie(movieId: number): Promise<Movie> {
+  const movie = await apiGet<Movie>(`${API_DOMAIN}/movie/${movieId}?language=de&api_key=${TmdbID}`);
+
+  return new Movie(movie);
+}
