@@ -5,4 +5,6 @@ export const LogChannelID = process.env.LOG_CHANNEL_ID || null;
 
 export const TmdbID = process.env.TMDB_ID || null;
 
-export const LimitVotes = isNullish(process.env.MOVIEBOT_LIMIT_VOTES) ? true : process.env.MOVIEBOT_LIMIT_VOTES;
+export const LimitVotes = isNullish(process.env.MOVIEBOT_LIMIT_VOTES)
+  ? true
+  : process.env.MOVIEBOT_LIMIT_VOTES === 'true';
