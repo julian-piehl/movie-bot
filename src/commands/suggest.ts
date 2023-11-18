@@ -1,9 +1,10 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
+import { channelMention } from 'discord.js';
 import { searchMovie } from '../lib/tmdb';
 import { Movie } from '../lib/tmdb/movie.model';
-import { Phase, getCurrentPhase } from '../lib/utils/currentState';
+import { Phase, getCurrentPhase, getMovieChannelId } from '../lib/utils/currentState';
 import { EmbedPager } from '../lib/utils/embedPager/embedPager';
 import { generateMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
@@ -31,6 +32,14 @@ export class SuggestCommand extends Command {
       });
     }
 
+    const member = await interaction.guild?.members.fetch(interaction.user.id);
+    if (isNullish(member) || isNullish(member.voice.channelId) || member.voice.channelId !== getMovieChannelId()) {
+      throw new UserError({
+        identifier: 'incorrectChannel',
+        message: `Bitte betritt den Sprachkanal: ${channelMention(getMovieChannelId())}.`,
+      });
+    }
+
     const movies = await searchMovie(interaction.options.getString('title')!);
 
     if (movies.length <= 0) {
@@ -47,8 +56,6 @@ export class SuggestCommand extends Command {
     });
 
     void embedPager.run(interaction, async (selectedMovie) => {
-      this.container.logger.debug(selectedMovie);
-
       const suggestion = await this.container.prisma.suggestion.findFirst({
         where: { movieId: selectedMovie.id, userId: interaction.user.id },
       });

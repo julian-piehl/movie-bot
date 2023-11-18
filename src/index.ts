@@ -7,7 +7,7 @@ const client = new SapphireClient({
   logger: {
     level: LogLevel.Debug,
   },
-  intents: [GatewayIntentBits.Guilds],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
   partials: [],
   loadDefaultErrorListeners: false,
   loadSubcommandErrorListeners: false,
