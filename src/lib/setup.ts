@@ -8,6 +8,7 @@ import '@sapphire/plugin-subcommands/register';
 import { setup } from '@skyra/env-utilities';
 import * as colorette from 'colorette';
 import { join } from 'path';
+import 'reflect-metadata';
 
 const prisma = new PrismaClient();
 container.prisma = prisma;
