@@ -144,3 +144,4 @@ dist
 
 # Docker Volume Dir
 data/
+imageCache/

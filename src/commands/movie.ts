@@ -11,7 +11,9 @@ import { CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { Subcommand } from '@sapphire/plugin-subcommands';
 import { isNullish } from '@sapphire/utilities';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, PermissionFlagsBits, inlineCode } from 'discord.js';
+import * as fs from 'fs';
 import { getMovie } from '../lib/tmdb';
+import { ImageCachePath } from '../lib/utils/constants';
 import {
   Phase,
   getCurrentPhase,
@@ -22,7 +24,7 @@ import {
   setMovieVoiceChannelId,
   setStatusMessage,
 } from '../lib/utils/currentState';
-import { generateOverviewMovieEmbed } from '../lib/utils/functions/movieEmbed';
+import { generateMovieThumbnail, generateOverviewMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<Subcommand.Options>({
   name: 'movie',
@@ -90,6 +92,7 @@ export class UserCommand extends Subcommand {
 
     await this.container.prisma.vote.deleteMany();
     await this.container.prisma.suggestion.deleteMany();
+    fs.readdirSync(ImageCachePath).forEach((f) => fs.rmSync(`${ImageCachePath}/${f}`));
 
     await interaction.editReply('✅ Vorschlagsphase gestartet');
     this.container.logger.debug(`${interaction.user.username} started the suggestion phase.`);
@@ -130,6 +133,8 @@ export class UserCommand extends Subcommand {
         message: 'Es wurden noch keine Filme zur Abstimmung eingereicht!',
       });
     }
+
+    await this.generateAndCacheMovieThumbnails();
 
     await interaction.editReply('✅ Votingphase gestartet.');
     this.container.logger.debug(`${interaction.user.username} started the voting phase.`);
@@ -207,6 +212,25 @@ export class UserCommand extends Subcommand {
 
     this.container.logger.warn('No Text Channel ID provided!');
     return undefined;
+  }
+
+  private async generateAndCacheMovieThumbnails() {
+    if (!fs.existsSync(ImageCachePath)) {
+      fs.mkdirSync(ImageCachePath);
+    }
+
+    const movieIds = (await this.container.prisma.suggestion.findMany({ select: { movieId: true } })).map(
+      (entry) => entry.movieId
+    );
+
+    await Promise.all(
+      movieIds.map(async (movieId) => {
+        const movie = await getMovie(movieId);
+
+        const imageBuffer = await generateMovieThumbnail(movie);
+        fs.writeFileSync(`${ImageCachePath}/${movie.id}.jpeg`, imageBuffer);
+      })
+    );
   }
 
   private async sendVotingPhaseMessage(interaction: Interaction) {

@@ -1,6 +1,6 @@
 import { isNullish } from '@sapphire/utilities';
 import { Palette } from '@vibrant/color';
-import { AttachmentBuilder, EmbedBuilder } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 import Vibrant from 'node-vibrant';
 import { Canvas, CanvasRenderingContext2D, loadImage } from 'skia-canvas';
 import { Movie, MovieDetails } from '../../tmdb/movie.model';
@@ -18,11 +18,6 @@ export function generateDetailsMovieEmbed(movie: MovieDetails) {
     .setTitle(movie.title)
     .setDescription(movie.overview.length > 0 ? movie.overview : null)
     .setImage(`attachment://${movie.id}.jpeg`);
-}
-
-export async function getDetailsMovieAttachment(movie: MovieDetails) {
-  const imageBuffer = await generateMovieThumbnail(movie);
-  return new AttachmentBuilder(imageBuffer).setName(`${movie.id}.jpeg`);
 }
 
 export async function generateMovieThumbnail(movie: MovieDetails) {

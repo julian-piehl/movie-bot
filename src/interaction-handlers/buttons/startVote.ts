@@ -1,18 +1,15 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { InteractionHandler, InteractionHandlerTypes, UserError } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { ButtonBuilder, ButtonInteraction, ButtonStyle, channelMention } from 'discord.js';
+import { AttachmentBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, channelMention } from 'discord.js';
+import { readFileSync } from 'fs';
 import { getMovie } from '../../lib/tmdb';
 import { MovieDetails } from '../../lib/tmdb/movie.model';
 import { LimitVotes } from '../../lib/utils/constants';
 import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../../lib/utils/currentState';
 import { EmbedPager } from '../../lib/utils/embedPager/embedPager';
 import { unvoteButton, voteButton } from '../../lib/utils/embedPager/pageButton';
-import {
-  generateDetailsMovieEmbed,
-  generateOverviewMovieEmbed,
-  getDetailsMovieAttachment,
-} from '../../lib/utils/functions/movieEmbed';
+import { generateDetailsMovieEmbed, generateOverviewMovieEmbed } from '../../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -58,7 +55,10 @@ export class ButtonHandler extends InteractionHandler {
       }
       return generateDetailsMovieEmbed(movie);
     });
-    embedPager.setAttachmentBuilder(getDetailsMovieAttachment);
+    embedPager.setAttachmentBuilder(async (movie) => {
+      const imageBuffer = readFileSync(`./imageCache/${movie.id}.jpeg`);
+      return new AttachmentBuilder(imageBuffer).setName(`${movie.id}.jpeg`);
+    });
     embedPager.setStopOnCollect(false);
     embedPager.onPagination(async (data) => {
       const isVoted = await this.container.prisma.vote

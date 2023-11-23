@@ -8,3 +8,5 @@ export const TmdbID = process.env.TMDB_ID || null;
 export const LimitVotes = isNullish(process.env.MOVIEBOT_LIMIT_VOTES)
   ? true
   : process.env.MOVIEBOT_LIMIT_VOTES === 'true';
+
+export const ImageCachePath = './imageCache';
