@@ -59,6 +59,9 @@ export class UserCommand extends Subcommand {
       });
     }
 
+    await this.container.prisma.vote.deleteMany();
+    await this.container.prisma.suggestion.deleteMany();
+
     await interaction.editReply('✅ Vorschlagsphase gestartet');
     this.container.logger.debug(`${interaction.user.username} started the suggestion phase.`);
 
@@ -94,9 +97,6 @@ export class UserCommand extends Subcommand {
 
     await interaction.editReply('✅ Votingphase gestartet.');
     this.container.logger.debug(`${interaction.user.username} started the voting phase.`);
-
-    await this.container.prisma.vote.deleteMany();
-    await this.container.prisma.suggestion.deleteMany();
 
     setCurrentPhase(Phase.Voting);
     await this.sendVotingPhaseMessage(interaction);
