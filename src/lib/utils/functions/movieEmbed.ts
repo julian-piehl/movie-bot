@@ -75,11 +75,20 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
   context.font = '500 28px';
   context.globalAlpha = 0.8;
 
-  const hours = Math.floor(movie.runtime / 60);
-  const minutes = movie.runtime % 60;
-  const releaseYear = new Date(movie.release_date).getFullYear();
+  let dateTimeText = '';
+  if (!isNullish(movie.release_date)) {
+    const releaseYear = new Date(movie.release_date).getFullYear();
+    dateTimeText = `${releaseYear}`;
+  }
+  if (!isNullish(movie.runtime)) {
+    const hours = Math.floor(movie.runtime / 60);
+    const minutes = movie.runtime % 60;
 
-  context.fillText(`${releaseYear} - ${hours}h ${minutes}m`, leftSpacing, 75);
+    if (!isNullish(movie.release_date)) dateTimeText += ' - ';
+    dateTimeText += `${hours}h ${minutes}m`;
+  }
+
+  context.fillText(dateTimeText, leftSpacing, 75);
 
   // ===== Draw Watch Provider =====
   const providers = movie['watch/providers'].results['DE'].flatrate;
@@ -139,9 +148,11 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
   }
 
   // ===== Draw Votes =====
-  drawStar(context, leftSpacing + 30, height - 150 - 25, 5, 30.5, 15.5);
-  const votePercentage = Math.round(movie.vote_average * 10);
-  context.fillText(`${votePercentage}%`, leftSpacing + 65, height - 150);
+  if (!isNullish(movie.vote_average)) {
+    drawStar(context, leftSpacing + 30, height - 150 - 25, 5, 30.5, 15.5);
+    const votePercentage = Math.round(movie.vote_average * 10);
+    context.fillText(`${votePercentage}%`, leftSpacing + 65, height - 150);
+  }
 
   // ===== Draw Genres =====
   const genreYPos = height - 75;
