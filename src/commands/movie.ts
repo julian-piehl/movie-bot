@@ -92,7 +92,9 @@ export class UserCommand extends Subcommand {
 
     await this.container.prisma.vote.deleteMany();
     await this.container.prisma.suggestion.deleteMany();
-    fs.readdirSync(ImageCachePath).forEach((f) => fs.rmSync(`${ImageCachePath}/${f}`));
+    if (fs.existsSync(ImageCachePath)) {
+      fs.readdirSync(ImageCachePath).forEach((f) => fs.rmSync(`${ImageCachePath}/${f}`));
+    }
 
     await interaction.editReply('✅ Vorschlagsphase gestartet');
     this.container.logger.debug(`${interaction.user.username} started the suggestion phase.`);
