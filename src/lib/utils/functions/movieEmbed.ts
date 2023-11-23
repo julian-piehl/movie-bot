@@ -1,11 +1,11 @@
 import { isNullish } from '@sapphire/utilities';
 import { Palette } from '@vibrant/color';
-import { EmbedBuilder } from 'discord.js';
+import { AttachmentBuilder, EmbedBuilder } from 'discord.js';
 import Vibrant from 'node-vibrant';
 import { Canvas, CanvasRenderingContext2D, loadImage } from 'skia-canvas';
 import { Movie, MovieDetails } from '../../tmdb/movie.model';
 
-export function generateMovieEmbed(movie: Movie) {
+export function generateOverviewMovieEmbed(movie: Movie) {
   return new EmbedBuilder()
     .setTitle(movie.title)
     .setDescription(movie.overview.length > 0 ? movie.overview : null)
@@ -13,7 +13,19 @@ export function generateMovieEmbed(movie: Movie) {
     .setImage(movie.backdrop);
 }
 
-export async function generateMovieImage(movie: MovieDetails) {
+export function generateDetailsMovieEmbed(movie: MovieDetails) {
+  return new EmbedBuilder()
+    .setTitle(movie.title)
+    .setDescription(movie.overview.length > 0 ? movie.overview : null)
+    .setImage(`attachment://${movie.id}.jpeg`);
+}
+
+export async function getDetailsMovieAttachment(movie: MovieDetails) {
+  const imageBuffer = await generateMovieThumbnail(movie);
+  return new AttachmentBuilder(imageBuffer).setName(`${movie.id}.jpeg`);
+}
+
+export async function generateMovieThumbnail(movie: MovieDetails) {
   const backdropWidth = 1280;
   const posterWidth = 480;
   const height = 720;
@@ -159,7 +171,7 @@ export async function generateMovieImage(movie: MovieDetails) {
   }
 
   // ===== Export Image =====
-  return canvas.toBuffer('png');
+  return canvas.toBuffer('jpeg');
 }
 
 function getTextFillColor(palette: Palette) {

@@ -1,6 +1,8 @@
 import { EmbedBuilder } from '@discordjs/builders';
+import { isNullish } from '@sapphire/utilities';
 import {
   ActionRowBuilder,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonInteraction,
   CommandInteraction,
@@ -20,6 +22,7 @@ export class EmbedPager<T> {
   protected ephemeral = true;
   protected stopOnCollect = true;
   protected runOnPagination: (data: T) => Promise<ButtonBuilder[]>;
+  protected attachmentBuilder: (data: T) => Promise<AttachmentBuilder>;
 
   public constructor(dataArray: T[], embedBuilder: (data: T) => EmbedBuilder) {
     this.data = dataArray;
@@ -44,6 +47,10 @@ export class EmbedPager<T> {
 
   public onPagination(event: (data: T) => Promise<ButtonBuilder[]>) {
     this.runOnPagination = event;
+  }
+
+  public setAttachmentBuilder(builder: (data: T) => Promise<AttachmentBuilder>) {
+    this.attachmentBuilder = builder;
   }
 
   public async run(
@@ -72,6 +79,7 @@ export class EmbedPager<T> {
           text: `Seite 1 von ${this.data.length}`,
         }),
       ],
+      files: isNullish(this.attachmentBuilder) ? [] : [await this.attachmentBuilder(this.data[0])],
     });
 
     const collector = message.createMessageComponentCollector({
@@ -136,6 +144,7 @@ export class EmbedPager<T> {
           text: `Seite ${this.currentIndex + 1} von ${this.data.length}`,
         }),
       ],
+      files: isNullish(this.attachmentBuilder) ? [] : [await this.attachmentBuilder(this.data[this.currentIndex])],
     });
   }
 }

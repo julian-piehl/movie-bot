@@ -22,7 +22,7 @@ import {
   setMovieVoiceChannelId,
   setStatusMessage,
 } from '../lib/utils/currentState';
-import { generateMovieEmbed } from '../lib/utils/functions/movieEmbed';
+import { generateOverviewMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<Subcommand.Options>({
   name: 'movie',
@@ -193,7 +193,7 @@ export class UserCommand extends Subcommand {
     const sendChannel = (await this.getSendChannel()) || interaction.channel!;
 
     sendChannel.send({
-      embeds: [embed, generateMovieEmbed(movie)],
+      embeds: [embed, generateOverviewMovieEmbed(movie)],
     });
   }
 

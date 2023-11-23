@@ -8,7 +8,11 @@ import { LimitVotes } from '../../lib/utils/constants';
 import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../../lib/utils/currentState';
 import { EmbedPager } from '../../lib/utils/embedPager/embedPager';
 import { unvoteButton, voteButton } from '../../lib/utils/embedPager/pageButton';
-import { generateMovieEmbed } from '../../lib/utils/functions/movieEmbed';
+import {
+  generateDetailsMovieEmbed,
+  generateOverviewMovieEmbed,
+  getDetailsMovieAttachment,
+} from '../../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<InteractionHandler.Options>({
   interactionHandlerType: InteractionHandlerTypes.Button,
@@ -48,7 +52,13 @@ export class ButtonHandler extends InteractionHandler {
       })
     );
 
-    const embedPager = new EmbedPager<MovieDetails>(movies, generateMovieEmbed);
+    const embedPager = new EmbedPager<MovieDetails>(movies, (movie) => {
+      if (isNullish(movie.backdrop) || isNullish(movie.poster)) {
+        return generateOverviewMovieEmbed(movie);
+      }
+      return generateDetailsMovieEmbed(movie);
+    });
+    embedPager.setAttachmentBuilder(getDetailsMovieAttachment);
     embedPager.setStopOnCollect(false);
     embedPager.onPagination(async (data) => {
       const isVoted = await this.container.prisma.vote

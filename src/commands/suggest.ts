@@ -6,7 +6,7 @@ import { searchMovie } from '../lib/tmdb';
 import { Movie } from '../lib/tmdb/movie.model';
 import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../lib/utils/currentState';
 import { EmbedPager } from '../lib/utils/embedPager/embedPager';
-import { generateMovieEmbed } from '../lib/utils/functions/movieEmbed';
+import { generateOverviewMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<Command.Options>({
   description: 'Schlage einen Film vor.',
@@ -49,11 +49,7 @@ export class SuggestCommand extends Command {
       });
     }
 
-    const embedPager = new EmbedPager<Movie>(movies, (movie: Movie) => {
-      const embed = generateMovieEmbed(movie);
-
-      return embed;
-    });
+    const embedPager = new EmbedPager<Movie>(movies, generateOverviewMovieEmbed);
 
     void embedPager.run(interaction, async (selectedMovie) => {
       const suggestion = await this.container.prisma.suggestion.findFirst({
