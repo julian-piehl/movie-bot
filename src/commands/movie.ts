@@ -1,11 +1,27 @@
 import { EmbedBuilder } from '@discordjs/builders';
 import { ApplyOptions } from '@sapphire/decorators';
+import {
+  canSendAttachments,
+  canSendEmbeds,
+  canSendMessages,
+  isMessageInstance,
+  isTextBasedChannel,
+} from '@sapphire/discord.js-utilities';
 import { CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { Subcommand } from '@sapphire/plugin-subcommands';
 import { isNullish } from '@sapphire/utilities';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, PermissionFlagsBits, inlineCode } from 'discord.js';
 import { getMovie } from '../lib/tmdb';
-import { Phase, getCurrentPhase, setCurrentPhase, setMovieChannelId } from '../lib/utils/currentState';
+import {
+  Phase,
+  getCurrentPhase,
+  getMovieTextChannelId,
+  getStatusMessage,
+  setCurrentPhase,
+  setMovieTextChannelId,
+  setMovieVoiceChannelId,
+  setStatusMessage,
+} from '../lib/utils/currentState';
 import { generateMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<Subcommand.Options>({
@@ -59,22 +75,42 @@ export class UserCommand extends Subcommand {
       });
     }
 
+    // Check if Bot can send messages in the text channel
+    if (
+      !canSendMessages(interaction.channel) ||
+      !canSendEmbeds(interaction.channel) ||
+      !canSendAttachments(interaction.channel)
+    ) {
+      this.container.logger.warn(`Cant send messages in channel ${interaction.channelId}`);
+      throw new UserError({
+        identifier: 'clientPermissionsError',
+        message: 'Der Bot hat keine Rechte in diesem Channel zu schreiben!',
+      });
+    }
+
     await this.container.prisma.vote.deleteMany();
     await this.container.prisma.suggestion.deleteMany();
 
     await interaction.editReply('✅ Vorschlagsphase gestartet');
     this.container.logger.debug(`${interaction.user.username} started the suggestion phase.`);
 
-    setMovieChannelId(member.voice.channelId);
+    setMovieVoiceChannelId(member.voice.channelId);
+    setMovieTextChannelId(interaction.channelId);
     setCurrentPhase(Phase.Suggestions);
 
     const embed = new EmbedBuilder()
       .setTitle('Welchen Film möchtest du schauen?')
       .setDescription(`Nutze ${inlineCode('/suggest')} um Filme vorzuschlagen.`);
 
-    await interaction.channel?.send({
+    const statusMessage = await interaction.channel!.send({
       embeds: [embed],
     });
+
+    if (isMessageInstance(statusMessage)) {
+      setStatusMessage(statusMessage);
+    } else {
+      this.container.logger.warn("Couldn't store start message!");
+    }
   }
 
   public async chatInputContinue(interaction: Subcommand.ChatInputCommandInteraction) {
@@ -140,6 +176,10 @@ export class UserCommand extends Subcommand {
       return;
     }
 
+    if (!isNullish(getStatusMessage()) && getStatusMessage().deletable) {
+      getStatusMessage().delete();
+    }
+
     setCurrentPhase(Phase.None);
     interaction.editReply('Die Abstimmung wurde beendet.');
     this.container.logger.debug(`${interaction.user.username} ended the voting phase.`);
@@ -150,9 +190,23 @@ export class UserCommand extends Subcommand {
       .setTitle('Die Entscheidung ist gefallen!')
       .setDescription('Hier seht ihr nun den Film des Abends:');
 
-    interaction.channel?.send({
+    const sendChannel = (await this.getSendChannel()) || interaction.channel!;
+
+    sendChannel.send({
       embeds: [embed, generateMovieEmbed(movie)],
     });
+  }
+
+  private async getSendChannel() {
+    if (!isNullish(getMovieTextChannelId())) {
+      const channel = await this.container.client.channels.fetch(getMovieTextChannelId());
+      if (!isNullish(channel) && isTextBasedChannel(channel)) {
+        return channel;
+      }
+    }
+
+    this.container.logger.warn('No Text Channel ID provided!');
+    return undefined;
   }
 
   private async sendVotingPhaseMessage(interaction: Interaction) {
@@ -167,10 +221,22 @@ export class UserCommand extends Subcommand {
       .setTitle('Jetzt abstimmen!')
       .setDescription('Wähle aus den eingereichten Filmen deine Favoriten.');
 
-    await interaction.channel?.send({
+    if (!isNullish(getStatusMessage()) && getStatusMessage().deletable) {
+      getStatusMessage().delete();
+    }
+
+    const sendChannel = (await this.getSendChannel()) || interaction.channel!;
+
+    const statusMessage = await sendChannel.send({
       embeds: [embed],
       components: [actionRow],
     });
+
+    if (isMessageInstance(statusMessage)) {
+      setStatusMessage(statusMessage);
+    } else {
+      this.container.logger.warn("Couldn't store continue message!");
+    }
   }
 
   private async getMostVotedIds() {

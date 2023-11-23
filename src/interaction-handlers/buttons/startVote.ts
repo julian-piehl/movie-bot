@@ -3,9 +3,9 @@ import { InteractionHandler, InteractionHandlerTypes, UserError } from '@sapphir
 import { isNullish } from '@sapphire/utilities';
 import { ButtonBuilder, ButtonInteraction, ButtonStyle, channelMention } from 'discord.js';
 import { getMovie } from '../../lib/tmdb';
-import { Movie } from '../../lib/tmdb/movie.model';
+import { MovieDetails } from '../../lib/tmdb/movie.model';
 import { LimitVotes } from '../../lib/utils/constants';
-import { Phase, getCurrentPhase, getMovieChannelId } from '../../lib/utils/currentState';
+import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../../lib/utils/currentState';
 import { EmbedPager } from '../../lib/utils/embedPager/embedPager';
 import { unvoteButton, voteButton } from '../../lib/utils/embedPager/pageButton';
 import { generateMovieEmbed } from '../../lib/utils/functions/movieEmbed';
@@ -31,10 +31,10 @@ export class ButtonHandler extends InteractionHandler {
     }
 
     const member = await interaction.guild?.members.fetch(interaction.user.id);
-    if (isNullish(member) || isNullish(member.voice.channelId) || member.voice.channelId !== getMovieChannelId()) {
+    if (isNullish(member) || isNullish(member.voice.channelId) || member.voice.channelId !== getMovieVoiceChannelId()) {
       throw new UserError({
         identifier: 'incorrectChannel',
-        message: `Bitte betritt den Sprachkanal: ${channelMention(getMovieChannelId())}.`,
+        message: `Bitte betritt den Sprachkanal: ${channelMention(getMovieVoiceChannelId())}.`,
       });
     }
 
@@ -48,7 +48,7 @@ export class ButtonHandler extends InteractionHandler {
       })
     );
 
-    const embedPager = new EmbedPager<Movie>(movies, generateMovieEmbed);
+    const embedPager = new EmbedPager<MovieDetails>(movies, generateMovieEmbed);
     embedPager.setStopOnCollect(false);
     embedPager.onPagination(async (data) => {
       const isVoted = await this.container.prisma.vote

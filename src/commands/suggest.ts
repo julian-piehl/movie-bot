@@ -4,7 +4,7 @@ import { isNullish } from '@sapphire/utilities';
 import { channelMention } from 'discord.js';
 import { searchMovie } from '../lib/tmdb';
 import { Movie } from '../lib/tmdb/movie.model';
-import { Phase, getCurrentPhase, getMovieChannelId } from '../lib/utils/currentState';
+import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../lib/utils/currentState';
 import { EmbedPager } from '../lib/utils/embedPager/embedPager';
 import { generateMovieEmbed } from '../lib/utils/functions/movieEmbed';
 
@@ -33,10 +33,10 @@ export class SuggestCommand extends Command {
     }
 
     const member = await interaction.guild?.members.fetch(interaction.user.id);
-    if (isNullish(member) || isNullish(member.voice.channelId) || member.voice.channelId !== getMovieChannelId()) {
+    if (isNullish(member) || isNullish(member.voice.channelId) || member.voice.channelId !== getMovieVoiceChannelId()) {
       throw new UserError({
         identifier: 'incorrectChannel',
-        message: `Bitte betritt den Sprachkanal: ${channelMention(getMovieChannelId())}.`,
+        message: `Bitte betritt den Sprachkanal: ${channelMention(getMovieVoiceChannelId())}.`,
       });
     }
 
