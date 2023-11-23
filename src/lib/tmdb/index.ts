@@ -4,7 +4,7 @@ import { apiGet } from '../utils/functions/api';
 import { Movie, MovieDetails } from './movie.model';
 import { Paginated } from './paginated.model';
 
-const API_DOMAIN = 'https://api.themoviedb.org/3/';
+const API_DOMAIN = 'https://api.themoviedb.org/3';
 
 export async function searchMovie(query: string): Promise<Movie[]> {
   const movies = await apiGet<Paginated<Movie>>(
