@@ -1,5 +1,7 @@
+import { container } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
 import { Palette } from '@vibrant/color';
+import { cyan } from 'colorette';
 import { EmbedBuilder } from 'discord.js';
 import Vibrant from 'node-vibrant';
 import { Canvas, CanvasRenderingContext2D, loadImage } from 'skia-canvas';
@@ -21,6 +23,8 @@ export function generateDetailsMovieEmbed(movie: MovieDetails) {
 }
 
 export async function generateMovieThumbnail(movie: MovieDetails) {
+  container.logger.debug(`Generating Movie Thumbnail for ${cyan(movie.title)} [${cyan(movie.id)}]`);
+
   const backdropWidth = 1280;
   const posterWidth = 480;
   const height = 720;
@@ -134,9 +138,6 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
   }
 
   // ===== Draw Title =====
-  const test = palette.DarkVibrant!.r * 0.299 + palette.DarkVibrant!.g * 0.587 + palette.DarkVibrant!.b * 0.114;
-  console.log(test);
-
   context.font = 'bold 70px';
   context.globalAlpha = 1.0;
   const lines = getLines(context, movie.title, backdropWidth - posterWidth - leftSpacing - 20);
