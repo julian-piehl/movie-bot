@@ -10,7 +10,15 @@ import {
 import { CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { Subcommand } from '@sapphire/plugin-subcommands';
 import { isNullish } from '@sapphire/utilities';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Interaction, PermissionFlagsBits, inlineCode } from 'discord.js';
+import {
+  ActionRowBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Interaction,
+  PermissionFlagsBits,
+  inlineCode,
+} from 'discord.js';
 import * as fs from 'fs';
 import { getMovie } from '../lib/tmdb';
 import { ImageCachePath } from '../lib/utils/constants';
@@ -24,7 +32,11 @@ import {
   setMovieVoiceChannelId,
   setStatusMessage,
 } from '../lib/utils/currentState';
-import { generateMovieThumbnail, generateOverviewMovieEmbed } from '../lib/utils/functions/movieEmbed';
+import {
+  generateDetailsMovieEmbed,
+  generateMovieThumbnail,
+  generateOverviewMovieEmbed,
+} from '../lib/utils/functions/movieEmbed';
 
 @ApplyOptions<Subcommand.Options>({
   name: 'movie',
@@ -199,9 +211,19 @@ export class UserCommand extends Subcommand {
 
     const sendChannel = (await this.getSendChannel()) || interaction.channel!;
 
-    sendChannel.send({
-      embeds: [embed, generateOverviewMovieEmbed(movie)],
-    });
+    if (!isNullish(movie.backdrop) && !isNullish(movie.poster)) {
+      const imageBuffer = fs.readFileSync(`${ImageCachePath}/${movie.id}.jpeg`);
+      const movieThumbnailAttachment = new AttachmentBuilder(imageBuffer).setName(`${movie.id}.jpeg`);
+
+      sendChannel.send({
+        embeds: [embed, generateDetailsMovieEmbed(movie)],
+        files: [movieThumbnailAttachment],
+      });
+    } else {
+      sendChannel.send({
+        embeds: [embed, generateOverviewMovieEmbed(movie)],
+      });
+    }
   }
 
   private async getSendChannel() {
