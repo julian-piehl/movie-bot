@@ -55,7 +55,7 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
 
   // ===== Draw Backdrop Overlay =====
   context.fillStyle = palette.DarkVibrant?.hex ?? '#6441a5';
-  context.globalAlpha = 0.8;
+  context.globalAlpha = 0.65;
 
   context.beginPath();
   context.moveTo(0, 0);
