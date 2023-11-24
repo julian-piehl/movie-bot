@@ -66,6 +66,8 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
   context.fill();
 
   // ===== Draw Date and Time ======
+  context.translate(0.5, 0.5); // Makes the edges less pixelated
+
   context.fillStyle = getTextFillColor(palette);
   context.font = '500 28px';
   context.globalAlpha = 0.8;
@@ -144,7 +146,7 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
 
   // ===== Draw Votes =====
   if (!isNullish(movie.vote_average)) {
-    drawStar(context, leftSpacing + 30, height - 150 - 25, 5, 30.5, 15.5);
+    drawStar(context, leftSpacing + 30, height - 150 - 25, 5, 30, 15);
     const votePercentage = Math.round(movie.vote_average * 10);
     context.fillText(`${votePercentage}%`, leftSpacing + 65, height - 150);
   }
