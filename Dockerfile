@@ -28,6 +28,7 @@ COPY --chown=node:node prisma/ prisma/
 COPY --chown=node:node src/ src/
 
 RUN yarn install --immutable
+RUN sed -i 's/roundRect(x: number, y: number, width: number, height: number, radii: number | CornerRadius\[\])/&: any/' node_modules/skia-canvas/lib/index.d.ts
 RUN yarn prisma generate
 RUN yarn run build
 
@@ -44,6 +45,7 @@ WORKDIR /usr/src/app
 
 COPY --chown=node:node --from=builder /usr/src/app/dist dist
 
+RUN apk add --no-cache fontconfig font-noto
 RUN yarn install --immutable --production
 
 COPY --chown=node:node --from=builder /usr/src/app/node_modules/.prisma node_modules/.prisma
