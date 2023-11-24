@@ -1,7 +1,7 @@
 import { ApplyOptions } from '@sapphire/decorators';
 import { Command, CommandOptionsRunTypeEnum, UserError } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
-import { channelMention } from 'discord.js';
+import { EmbedBuilder, channelMention } from 'discord.js';
 import { searchMovie } from '../lib/tmdb';
 import { Movie } from '../lib/tmdb/movie.model';
 import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../lib/utils/currentState';
@@ -66,6 +66,13 @@ export class SuggestCommand extends Command {
       });
 
       this.container.logger.debug(`${interaction.user.username} suggested "${selectedMovie.title}"`);
+
+      const embed = new EmbedBuilder().setDescription('Dein Vorschlag wurde eingereicht.').setColor('Green');
+
+      await interaction.followUp({
+        ephemeral: true,
+        embeds: [embed],
+      });
     });
   }
 }

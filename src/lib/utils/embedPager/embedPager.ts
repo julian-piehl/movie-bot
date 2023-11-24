@@ -1,4 +1,5 @@
 import { EmbedBuilder } from '@discordjs/builders';
+import { container } from '@sapphire/framework';
 import { isNullish } from '@sapphire/utilities';
 import {
   ActionRowBuilder,
@@ -98,6 +99,15 @@ export class EmbedPager<T> {
 
       await this.rerenderEmbed(button);
     });
+    collector.once('end', async () => {
+      try {
+        await interaction.editReply({
+          components: [],
+        });
+      } catch {
+        container.logger.debug('EmbedPager tried editing a reply which isnt available anymore');
+      }
+    });
   }
 
   protected async onButton(
@@ -105,20 +115,10 @@ export class EmbedPager<T> {
     interaction: ButtonInteraction,
     callback: (data: T) => any
   ) {
-    if (this.stopOnCollect) collector.stop();
-
     await callback(this.data[this.currentIndex]);
 
     if (this.stopOnCollect) {
-      await interaction.editReply({
-        components: [],
-        embeds: [
-          this.embedBuilder(this.data[this.currentIndex]).setAuthor({
-            name: 'Vorschlag eingereicht',
-            iconURL: interaction.user.avatarURL() || undefined,
-          }),
-        ],
-      });
+      collector.stop('stoppedOnCollect');
     } else {
       await this.rerenderEmbed(interaction);
     }
