@@ -15,5 +15,9 @@ services:
     image: movie-night-discord-bot:latest
     build: ./
     restart: always
+    volumes:
+      - ./data/bot:/data
+    environment:
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/sapphire
     env_file:
       - .env

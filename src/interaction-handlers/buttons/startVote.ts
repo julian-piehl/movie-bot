@@ -5,7 +5,7 @@ import { AttachmentBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, chann
 import { readFileSync } from 'fs';
 import { getMovie } from '../../lib/tmdb';
 import { MovieDetails } from '../../lib/tmdb/movie.model';
-import { LimitVotes } from '../../lib/utils/constants';
+import { ImageCachePath, LimitVotes } from '../../lib/utils/constants';
 import { Phase, getCurrentPhase, getMovieVoiceChannelId } from '../../lib/utils/currentState';
 import { EmbedPager } from '../../lib/utils/embedPager/embedPager';
 import { unvoteButton, voteButton } from '../../lib/utils/embedPager/pageButton';
@@ -56,7 +56,7 @@ export class ButtonHandler extends InteractionHandler {
       return generateDetailsMovieEmbed(movie);
     });
     embedPager.setAttachmentBuilder(async (movie) => {
-      const imageBuffer = readFileSync(`./imageCache/${movie.id}.jpeg`);
+      const imageBuffer = readFileSync(`${ImageCachePath}/${movie.id}.jpeg`);
       return new AttachmentBuilder(imageBuffer).setName(`${movie.id}.jpeg`);
     });
     embedPager.setStopOnCollect(false);

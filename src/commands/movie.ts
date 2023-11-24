@@ -240,7 +240,7 @@ export class UserCommand extends Subcommand {
 
   private async generateAndCacheMovieThumbnails() {
     if (!fs.existsSync(ImageCachePath)) {
-      fs.mkdirSync(ImageCachePath);
+      fs.mkdirSync(ImageCachePath, { recursive: true });
     }
 
     const movieIds = (await this.container.prisma.suggestion.findMany({ select: { movieId: true } })).map(

@@ -46,5 +46,6 @@ RUN yarn install --immutable --production
 RUN chown node:node /usr/src/app/
 
 USER node
+VOLUME [ "/data" ]
 
 CMD [ "yarn", "run", "start"]
