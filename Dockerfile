@@ -24,9 +24,11 @@ FROM base as builder
 ENV NODE_ENV="development"
 
 COPY --chown=node:node tsconfig.json .
+COPY --chown=node:node prisma/ prisma/
 COPY --chown=node:node src/ src/
 
 RUN yarn install --immutable
+RUN yarn prisma generate
 RUN yarn run build
 
 # ================ #
@@ -43,6 +45,9 @@ WORKDIR /usr/src/app
 COPY --chown=node:node --from=builder /usr/src/app/dist dist
 
 RUN yarn install --immutable --production
+
+COPY --chown=node:node --from=builder /usr/src/app/node_modules/.prisma node_modules/.prisma
+
 RUN chown node:node /usr/src/app/
 
 USER node
