@@ -92,13 +92,18 @@ export async function generateMovieThumbnail(movie: MovieDetails) {
   context.fillText(dateTimeText, leftSpacing, 75);
 
   // ===== Draw Watch Provider =====
-  const providers = movie['watch/providers'].results['DE'].flatrate;
-  if (providers.length >= 1) {
+  if (
+    !isNullish(movie['watch/providers'].results['DE']) &&
+    !isNullish(movie['watch/providers'].results['DE'].flatrate) &&
+    movie['watch/providers'].results['DE'].flatrate.length >= 1
+  ) {
+    const provider = movie['watch/providers'].results['DE'].flatrate[0];
+
     let providerImageUrl;
     let providerImageHeight = 50;
     let providerImageRightSpacing = 30;
     let providerImageTopSpacing = 30;
-    switch (providers[0].provider_id) {
+    switch (provider.provider_id) {
       case 337:
         // Disney Plus (2739)
         providerImageUrl = 'https://image.tmdb.org/t/p/h100_filter(negate,000,666)/uzKjVDmQ1WRMvGBb7UNRE0wTn1H.png';
