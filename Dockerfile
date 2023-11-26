@@ -53,8 +53,9 @@ COPY --chown=node:node prisma/ prisma/
 
 RUN chown node:node /usr/src/app/
 
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT [ "/entrypoint.sh" ]
+COPY entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT [ "/usr/local/bin/docker-entrypoint.sh" ]
 
 USER node
 VOLUME [ "/data" ]
