@@ -49,10 +49,14 @@ RUN apk add --no-cache fontconfig font-noto
 RUN yarn install --immutable --production
 
 COPY --chown=node:node --from=builder /usr/src/app/node_modules/.prisma node_modules/.prisma
+COPY --chown=node:node prisma/ prisma/
 
 RUN chown node:node /usr/src/app/
+
+COPY entrypoint.sh /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 USER node
 VOLUME [ "/data" ]
 
-CMD [ "yarn", "run", "docker:start"]
+CMD [ "yarn", "run", "start"]
