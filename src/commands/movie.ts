@@ -1,4 +1,5 @@
 import { EmbedBuilder } from '@discordjs/builders';
+import { HistoryState } from '@prisma/client';
 import { ApplyOptions } from '@sapphire/decorators';
 import {
   canSendAttachments,
@@ -26,6 +27,7 @@ import {
   Phase,
   getCurrentPhase,
   getMovieTextChannelId,
+  getMovieVoiceChannelId,
   getStatusMessage,
   setCurrentPhase,
   setMovieTextChannelId,
@@ -54,6 +56,10 @@ import {
       name: 'end',
       chatInputRun: 'chatInputEnd',
     },
+    {
+      name: 'last-state',
+      chatInputRun: 'chatInputLastState',
+    },
   ],
   requiredUserPermissions: [PermissionFlagsBits.ManageEvents],
   runIn: CommandOptionsRunTypeEnum.GuildAny,
@@ -68,6 +74,22 @@ export class UserCommand extends Subcommand {
         .addSubcommand((command) => command.setName('start').setDescription('Startet die Vorschlagsphase'))
         .addSubcommand((command) => command.setName('continue').setDescription('Startet die Votingphase'))
         .addSubcommand((command) => command.setName('end').setDescription('Beendet das Voting'))
+        .addSubcommand((command) =>
+          command
+            .setName('last-state')
+            .setDescription('Setze den Status des letzten Films')
+            .addStringOption((option) =>
+              option
+                .setName('state')
+                .setDescription('Filmstatus')
+                .setChoices(
+                  { name: 'Geguckt', value: HistoryState.Watched },
+                  { name: 'Abgebrochen', value: HistoryState.Canceled },
+                  { name: 'Kein Streaminganbieter verfügbar', value: HistoryState.NoWatchProviderAvailable }
+                )
+                .setRequired(true)
+            )
+        )
     );
   }
 
@@ -224,6 +246,50 @@ export class UserCommand extends Subcommand {
         embeds: [embed, generateOverviewMovieEmbed(movie)],
       });
     }
+
+    let channelMemberIds: string[] = [];
+    const voiceChannel = await interaction.guild?.channels.fetch(getMovieVoiceChannelId());
+    if (!isNullish(voiceChannel) && voiceChannel.isVoiceBased()) {
+      channelMemberIds = Array.from(voiceChannel.members.keys());
+    }
+
+    await this.container.prisma.history.create({
+      data: {
+        movieId: movie.id,
+        userIds: channelMemberIds,
+      },
+    });
+  }
+
+  public async chatInputLastState(interaction: Subcommand.ChatInputCommandInteraction) {
+    await interaction.deferReply({ ephemeral: true });
+
+    const state = interaction.options.getString('state', true) as HistoryState;
+
+    const lastHistoryArray = await this.container.prisma.history.findMany({
+      orderBy: {
+        watchedAt: 'desc',
+      },
+      take: 1,
+    });
+
+    if (isNullish(lastHistoryArray) || lastHistoryArray.length !== 1) {
+      throw new UserError({
+        identifier: 'noHistory',
+        message: 'Es wurde kein Film im Verlauf gefunden.',
+      });
+    }
+
+    await this.container.prisma.history.update({
+      data: {
+        state: state,
+      },
+      where: {
+        id: lastHistoryArray[0].id,
+      },
+    });
+
+    await interaction.editReply('Der Status vom letzten Film wurde geändert.');
   }
 
   private async getSendChannel() {

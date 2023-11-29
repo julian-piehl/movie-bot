@@ -23,3 +23,17 @@ model Vote {
 
     @@unique([userId, movieId])
 }
+
+model History {
+    id        Int          @id @default(autoincrement())
+    movieId   Int
+    watchedAt DateTime     @default(now())
+    userIds   String[]
+    state     HistoryState @default(Watched)
+}
+
+enum HistoryState {
+    Watched
+    Canceled
+    NoWatchProviderAvailable
+}
