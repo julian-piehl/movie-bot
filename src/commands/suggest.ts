@@ -40,7 +40,7 @@ export class SuggestCommand extends Command {
       });
     }
 
-    const movies = await searchMovie(interaction.options.getString('title')!);
+    const movies = await searchMovie(interaction.options.getString('title', true));
 
     if (movies.length <= 0) {
       throw new UserError({
