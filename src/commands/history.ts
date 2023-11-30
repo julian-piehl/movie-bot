@@ -5,7 +5,7 @@ import { EmbedBuilder, strikethrough, time } from 'discord.js';
 import { getMovie } from '../lib/tmdb';
 
 @ApplyOptions<Command.Options>({
-  description: 'Zeig den Filmverlauf',
+  description: 'Zeig die zuletzt gesehenen Filme',
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class UserCommand extends Command {
@@ -18,7 +18,12 @@ export class UserCommand extends Command {
 
     const embed = new EmbedBuilder().setTitle('Filmverlauf');
 
-    const historyArray = await this.container.prisma.history.findMany();
+    const historyArray = await this.container.prisma.history.findMany({
+      orderBy: {
+        watchedAt: 'desc',
+      },
+      take: 10,
+    });
     for (var i = 0; i < historyArray.length; i++) {
       const movie = await getMovie(historyArray[i].movieId);
 
