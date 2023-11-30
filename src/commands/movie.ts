@@ -62,6 +62,7 @@ import {
     },
   ],
   requiredUserPermissions: [PermissionFlagsBits.ManageEvents],
+  requiredClientPermissions: [PermissionFlagsBits.AttachFiles],
   runIn: CommandOptionsRunTypeEnum.GuildAny,
 })
 export class UserCommand extends Subcommand {
