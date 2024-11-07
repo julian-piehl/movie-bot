@@ -28,7 +28,7 @@
     "form-data-encoder": "^4.0.2",
     "node-vibrant": "^3.2.1-alpha.1",
     "reflect-metadata": "^0.1.13",
-    "skia-canvas": "^1.0.1"
+    "skia-canvas": "^1.0.2"
   },
   "devDependencies": {
     "@sapphire/eslint-config": "^5.0.2",
