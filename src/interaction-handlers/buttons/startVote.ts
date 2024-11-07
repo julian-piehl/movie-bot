@@ -72,7 +72,7 @@ export class ButtonHandler extends InteractionHandler {
       }
 
       const voteCount = await this.container.prisma.vote.count({ where: { userId: interaction.user.id } });
-      const maxVotes = Math.floor(movies.length / 3) + 1;
+      const maxVotes = Math.min(Math.floor(movies.length / 3) + 1, 3);
 
       const remainingVotesButton = new ButtonBuilder()
         .setCustomId('placeholder')
